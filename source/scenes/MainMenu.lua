@@ -22,7 +22,7 @@ end
 function scene:init()
     scene.super.init(self)
     self:setValues()
-    self.menu = Noble.Menu.new(false, Noble.Text.ALIGN_LEFT, false, self.color2, 4,6,0, Noble.Text.FONT_SMALL) --template, creates a menu for the main scene
+    self.menu = Noble.Menu.new(false, Noble.Text.ALIGN_LEFT, false, self.color2, 4,6,0, Noble.Text.FONT_LARGE) --template, creates a menu for the main scene
     self:setUpMenu(self.menu)
     local crankTick = 0 --presuming this is related to number of cranks/how fast the crank moves
     self.inputHandler = { --again taken from examplescene as it already gives desired functionality for menu

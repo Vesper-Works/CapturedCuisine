@@ -93,24 +93,24 @@ function scene:exit()
 end
 
 function scene:setupMenu(__menu)
-	__menu:addItem(Noble.Transition.Cut.name,						function() Noble.transition(ExampleScene2, nil, Noble.Transition.Cut) end)
-	__menu:addItem(Noble.Transition.CrossDissolve.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.CrossDissolve) end)
-	__menu:addItem(Noble.Transition.DipToBlack.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.DipToBlack) end)
-	__menu:addItem(Noble.Transition.DipToWhite.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.DipToWhite) end)
-	__menu:addItem(Noble.Transition.Imagetable.name.." (Bolt)",		function() Noble.transition(ExampleScene2, nil, Noble.Transition.Imagetable) end)
-	__menu:addItem(Noble.Transition.Imagetable.name.." (Curtain)",	function() Noble.transition(ExampleScene2, nil, Noble.Transition.Imagetable, {
-		imagetable = Graphics.imagetable.new("libraries/noble/assets/images/ImagetableTransition"),
-		rotateExit = true
-	}) end)
-	__menu:addItem(Noble.Transition.ImagetableMask.name,			function() Noble.transition(ExampleScene2, nil, Noble.Transition.ImagetableMask, {
-		imagetable = Graphics.imagetable.new("libraries/noble/assets/images/ImagetableTransition")
-	}) end)
-	__menu:addItem(Noble.Transition.Spotlight.name,					function() Noble.transition(ExampleScene2, nil, Noble.Transition.Spotlight, {
-		invert = true, xEnterStart = 50, yEnterStart = 50, xEnterEnd = 250, yEnterEnd = 200,
-	}) end)
-	__menu:addItem(Noble.Transition.SpotlightMask.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.SpotlightMask, {
-		invert = true
-	}) end)
+__menu:addItem(Noble.Transition.Cut.name,						function() Noble.transition(ExampleScene2, nil, Noble.Transition.Cut) end)
+__menu:addItem(Noble.Transition.CrossDissolve.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.CrossDissolve) end)
+__menu:addItem(Noble.Transition.DipToBlack.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.DipToBlack) end)
+__menu:addItem(Noble.Transition.DipToWhite.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.DipToWhite) end)
+__menu:addItem(Noble.Transition.Imagetable.name.." (Bolt)",		function() Noble.transition(ExampleScene2, nil, Noble.Transition.Imagetable) end)
+__menu:addItem(Noble.Transition.Imagetable.name.." (Curtain)",	function() Noble.transition(ExampleScene2, nil, Noble.Transition.Imagetable, {
+	imagetable = Graphics.imagetable.new("libraries/noble/assets/images/ImagetableTransition"),
+	rotateExit = true
+}) end)
+__menu:addItem(Noble.Transition.ImagetableMask.name,			function() Noble.transition(ExampleScene2, nil, Noble.Transition.ImagetableMask, {
+	imagetable = Graphics.imagetable.new("libraries/noble/assets/images/ImagetableTransition")
+}) end)
+__menu:addItem(Noble.Transition.Spotlight.name,					function() Noble.transition(ExampleScene2, nil, Noble.Transition.Spotlight, {
+	invert = true, xEnterStart = 50, yEnterStart = 50, xEnterEnd = 250, yEnterEnd = 200,
+}) end)
+__menu:addItem(Noble.Transition.SpotlightMask.name,				function() Noble.transition(ExampleScene2, nil, Noble.Transition.SpotlightMask, {
+	invert = true
+}) end)
 end
 
 function scene:drawLogo()

@@ -5,6 +5,7 @@ import 'utilities/Utilities'
 import 'scenes/ExampleScene'
 import 'scenes/ExampleScene2'
 import 'scenes/OpeningScene'
+import 'scenes/MainMenu'
 import "CoreLibs/timer"
 local pd = playdate
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be

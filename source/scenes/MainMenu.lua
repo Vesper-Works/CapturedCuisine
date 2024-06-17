@@ -1,4 +1,4 @@
-import 'scenes/BlankScene'
+
 MainMenu = {}
 class("MainMenu").extends(NobleScene)
 local scene = MainMenu

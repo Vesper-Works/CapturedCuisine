@@ -1,5 +1,5 @@
 BlankScene = {}
-class("BlankScene").extends(OpeningScene)
+class("BlankScene").extends(MainMenu)
 local scene = BlankScene 
 local pd = playdate
 function scene:setValues()
@@ -17,7 +17,6 @@ function scene:update()
     if pd.kButtonB then
         self.exit(self)
     end
-    --this should only transition back to MainMenu scene if B button is called, but it seems to be doing this automatically. Not sure why.
 end
 function scene:exit()
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)

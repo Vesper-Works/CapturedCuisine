@@ -39,6 +39,9 @@ luac.out
 *.x86_64
 *.hex
 
+# Playdate
+*.pdx
+
 .vscode
 
 builds/

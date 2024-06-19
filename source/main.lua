@@ -16,7 +16,6 @@ Noble.Settings.setup({
 Noble.GameData.setup({
 	Score = 0
 })
-
 Noble.showFPS = true
 Noble.new(OpeningScene)
 pd.timer.performAfterDelay(mainMenuLoad, function ()

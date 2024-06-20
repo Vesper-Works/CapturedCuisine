@@ -16,7 +16,7 @@ function scene:init()
 end
 
 function scene:exit()
-    Noble.transition(ExampleScene, nil, Noble.Transition.DipToBlack) --move to the main scene
+    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack) --move to the main scene
 end
 
 --flesh this out with the actual opening cinematic later

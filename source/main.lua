@@ -24,5 +24,5 @@ pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
 function loadMainMenu() 
-	OpeningScene.exit()
+	OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
 end

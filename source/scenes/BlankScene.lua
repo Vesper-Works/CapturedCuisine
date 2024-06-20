@@ -1,5 +1,5 @@
 BlankScene = {}
-class("BlankScene").extends(MainMenu)
+class("BlankScene").extends(NobleScene)
 local scene = BlankScene 
 local pd = playdate
 function scene:setValues()
@@ -12,12 +12,10 @@ function scene:init()
     scene.super.init(self) --calls parent constructor
     self:setValues()
 end
-function scene:enter()
-	scene.super.enter(self)
-end
 function scene:update()
-    if pd.kButtonB then
-        self.exit(self)
+    scene.super.update(self)
+    if pd.buttonIsPressed(pd.kButtonB) then
+        scene.exit(self)
     end
     --this should only transition back to MainMenu scene if B button is called, but it seems to be doing this automatically. Not sure why.
 end

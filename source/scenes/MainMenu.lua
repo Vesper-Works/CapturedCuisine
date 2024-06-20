@@ -73,7 +73,7 @@ function scene:update()
 	Graphics.fillRoundRect(self.menuX, self.sequence:get() or self.menuY, 185, 200, 15)
 	self.menu:draw(self.menuX+15, self.sequence:get() + 3 or self.menuY+3)
 
-	Graphics.setColor(Graphics.kColorBlack)
+	--Graphics.setColor(Graphics.kColorBlack)
 
 end
 

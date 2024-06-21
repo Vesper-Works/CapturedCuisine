@@ -8,6 +8,7 @@ import 'scenes/OpeningScene'
 import 'scenes/MainMenu'
 import 'scenes/BlankScene'
 import 'scenes/CheckSave'
+import 'scenes/CheckSave2'
 import "CoreLibs/timer"
 local pd = playdate
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be

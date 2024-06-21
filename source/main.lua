@@ -7,6 +7,7 @@ import 'scenes/ExampleScene2'
 import 'scenes/OpeningScene'
 import 'scenes/MainMenu'
 import 'scenes/BlankScene'
+import 'scenes/CheckSave'
 import "CoreLibs/timer"
 local pd = playdate
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be
@@ -16,7 +17,10 @@ Noble.Settings.setup({
 })
 
 Noble.GameData.setup({
-	Score = 0
+	Reputation = 0,
+	Day = 0,
+	Orders = {},
+	IngredientInfo = {}
 })
 Noble.showFPS = true
 Noble.new(OpeningScene)

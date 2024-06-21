@@ -84,7 +84,7 @@ function scene:exit()
 end
 
 function scene:setUpMenu(__menu)
-    __menu:addItem("Continue", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
+    __menu:addItem("Continue", function() Noble.transition(LoadSave, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Start Game", function() Noble.transition(CheckSave, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Endless", function() Noble.transition(CheckSave2, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Options", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)

@@ -23,8 +23,10 @@ function scene:setValues()
     self.gameOver = false
     self.gameStart = false
     self.senstivity = 6 -- not recommended to go past about 75, since it ends up being innacurate. will want to be a decently high number though. could be adjusted with a 'difficulty'?
-    self.gameTimer = pd.timer.new(0)
     self.gameOverText = ""
+    self.gameTimer = pd.timer.new(10000)
+    self.gameTimer.paused = true
+
 
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
@@ -44,16 +46,18 @@ function scene:update()
     end
 
     if (self.gameOver == false) and (self.gameStart == true) then self:MinigameRoutine() end
-    if(self.gameStart == true) then self.gameTimer = pd.timer.new(10000) end
+    if (self.gameStart == true) then self.gameTimer.paused = false end
+
 
     self.gameTimer.updateCallback = function()
-        local timeRemaining = tostring(math.floor(self.gameTimer.currentTime/1000) - 10000)
+        local timeRemaining = tostring(10 - math.floor(self.gameTimer.currentTime/1000))
         if self.gameOver == false then Noble.Text.draw("Time Remaining:  " .. timeRemaining, 20, 100, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) end
     end
 
     self.gameTimer.timerEndedCallback = function()
         self.gameOver = true
         self.gameOverText = "GAME OVER!"
+        ExitAfterDelay()
     end
 
     Noble.Text.draw(self.gameOverText, 20, 40, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) 
@@ -62,7 +66,7 @@ function scene:update()
 
     self.age = math.clamp(self.age, 0, self.perishAge)
 
-    ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 100, 80, 10)
+    ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 60, 80, 10)
     Noble.Text.draw("Current Age: " .. self.age, 20, 60, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont())
     
 end
@@ -83,11 +87,17 @@ function scene:MinigameRoutine()
     if self.age >= self.perishAge then
         self.ingredientStatus = "INGREDIENT PERISHED"
         self.gameOver = true
+        ExitAfterDelay()
     end
 end
 
 function scene:exit()
+    self.gameOver = true
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+end
+
+function ExitAfterDelay()
+    pd.timer.performAfterDelay(3000, function() scene:exit() end)
 end
 
 function ProgressBarRoutine(age, targetAge, perishAge, xOffset, yOffset, width)

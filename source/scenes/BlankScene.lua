@@ -1,6 +1,6 @@
 BlankScene = {}
 class("BlankScene").extends(NobleScene)
-local scene = BlankScene 
+local scene = BlankScene
 local pd = playdate
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -13,13 +13,14 @@ end
 function scene:init()
     scene.super.init(self) --calls parent constructor
     self:setValues()
-    Noble.Text.draw(self.sceneText, 20, 20, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) --it's possible this works but we may need a font asset
 end
 function scene:update()
     scene.super.update(self)
     if pd.buttonIsPressed(pd.kButtonB) then
         scene.exit(self)
     end
+    Noble.Text.draw(self.sceneText, 20, 20, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) --it's possible this works but we may need a font asset
+
 end
 function scene:exit()
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)

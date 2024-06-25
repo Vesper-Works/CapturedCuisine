@@ -1,0 +1,37 @@
+
+{
+    "Onion_1": {
+            "left_dialogue": {
+                "dialogue": "Please get in the pot",
+                "response": "No",
+                "success": false
+            },
+            "middle_dialogue": {
+                "dialogue": "I want you in the pot",
+                "response": "No",
+                "success": false
+            },
+            "right_dialogue": {
+                "dialogue": "I'll give you a fiver if you go in the pot",
+                "response": "I need more convincing",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Five pounds is all you are getting",
+                        "response": "No lmao",
+                        "success": false
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "You won't die I promise",
+                        "response": "Okay then",
+                        "success": true
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I'll give you a tenner",
+                        "response": "Nope",
+                        "success": false
+                    }
+                }
+            }
+    }
+}

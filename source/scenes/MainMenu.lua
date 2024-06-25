@@ -71,7 +71,7 @@ function scene:update()
 	Graphics.setColor(self.color1)
 	Graphics.setDitherPattern(0.2, Graphics.image.kDitherTypeScreen)
 	Graphics.fillRoundRect(self.menuX, self.sequence:get() or self.menuY, 185, 200, 15)
-	self.menu:draw(self.menuX+15, self.sequence:get() + 3 or self.menuY+3)
+	self.menu:draw(self.menuX+15, self.sequence:get() + 4 or self.menuY+4)
 
 	--Graphics.setColor(Graphics.kColorBlack)
 
@@ -88,5 +88,6 @@ function scene:setUpMenu(__menu)
     __menu:addItem("Start Game", function() Noble.transition(CheckSave, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Endless", function() Noble.transition(CheckSave2, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Options", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
+	__menu:addItem("Sweet Talking", function() Noble.transition(SweetTalking, nil, Noble.Transition.CrossDissolve) end)
     --something to consider, if a player choses to pick endless/start game while a saved game exists, then we may need to include a warning message/scene before it loads
 end

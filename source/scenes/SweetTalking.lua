@@ -4,7 +4,9 @@ class("SweetTalking").extends(NobleScene)
 
 local scene = SweetTalking
 local pd = playdate
-
+local left_dialogue
+local right_dialogue
+local middle_dialogue
 -- Function to set initial values for the scene
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -31,79 +33,33 @@ end
 -- Helper function to setup dialogues
 function scene:setupDialogues()
     local dialogues = self.dialoguebranches[self.currentIngredient]
-    self.left_dialogue = dialogues["left_dialogue"]
-    self.middle_dialogue = dialogues["middle_dialogue"]
-    self.right_dialogue = dialogues["right_dialogue"]
-
-    if self.left_dialogue and self.middle_dialogue and self.right_dialogue then
-        self.left = Dialogue(self.left_dialogue["dialogue"], self.left_dialogue["response"], self.left_dialogue["success"])
-        self.middle = Dialogue(self.middle_dialogue["dialogue"], self.middle_dialogue["response"], self.middle_dialogue["success"])
-        self.right = Dialogue(self.right_dialogue["dialogue"], self.right_dialogue["response"], self.right_dialogue["success"])
-        print("Initialized dialogues")
-    else
-        print("Dialogue branches are incomplete.")
-    end
-end
-
-function scene:resetDialogues(branch)
-    if not branch then
-        print("resetDialogues: Branch is nil")
-        return
-    end
-
-    print("resetDialogues: Received branch")
-    print("resetDialogues: left_dialogue: " .. branch["left_dialogue"]["dialogue"])
-    print("resetDialogues: middle_dialogue: " .. branch["middle_dialogue"]["dialogue"])
-    print("resetDialogues: right_dialogue: " .. branch["right_dialogue"]["dialogue"])
-
-    self.left_dialogue = branch["left_dialogue"]
-    self.middle_dialogue = branch["middle_dialogue"]
-    self.right_dialogue = branch["right_dialogue"]
-
-    if self.left_dialogue and self.middle_dialogue and self.right_dialogue then
-        print("resetDialogues: Updating dialogues with new branch data")
-
-        -- Ensure dialogue objects are not nil
-        if not self.left or not self.middle or not self.right then
-            print("resetDialogues: Dialogue objects are nil, reinitializing")
-            self.left = Dialogue(self.left_dialogue["dialogue"], self.left_dialogue["response"], self.left_dialogue["success"])
-            self.middle = Dialogue(self.middle_dialogue["dialogue"], self.middle_dialogue["response"], self.middle_dialogue["success"])
-            self.right = Dialogue(self.right_dialogue["dialogue"], self.right_dialogue["response"], self.right_dialogue["success"])
-        else
-            print("resetDialogues: Using existing Dialogue objects")
-            self.left:setAllValues(self.left_dialogue["dialogue"], self.left_dialogue["response"], self.left_dialogue["success"])
-            self.middle:setAllValues(self.middle_dialogue["dialogue"], self.middle_dialogue["response"], self.middle_dialogue["success"])
-            self.right:setAllValues(self.right_dialogue["dialogue"], self.right_dialogue["response"], self.right_dialogue["success"])
-        end
-
-        print("resetDialogues: Dialogues successfully reset")
-    else
-        print("resetDialogues: Dialogue branches are incomplete.")
-    end
+    left_dialogue = dialogues["left_dialogue"]
+    middle_dialogue = dialogues["middle_dialogue"]
+    right_dialogue = dialogues["right_dialogue"]
 end
 
 -- Function to handle updating logic based on user input
 function scene:update()
     if pd.buttonJustReleased(pd.kButtonLeft) then
-        if self.left and self.left:getSuccess() then
-            print("Left success: " .. self.left:getResponse())
-            scene:refreshDialogue(self.left_dialogue)
-        elseif self.left then
-            print("Left response: " .. self.left:getResponse())
+        if left_dialogue["success"] == true then
+            print("Left success: " .. left_dialogue["response"])
+            scene:refreshDialogue(left_dialogue)
+        else
+            print("Left response: " .. left_dialogue["response"])
         end
     elseif pd.buttonJustReleased(pd.kButtonRight) then
-        if self.right and self.right:getSuccess() then
-            print("Right success: " .. self.right:getResponse())
-            scene:refreshDialogue(self.right_dialogue)
-        elseif self.right then
-            print("Right response: " .. self.right:getResponse())
+        if right_dialogue["success"] == true then
+            print("Right success: " .. right_dialogue["response"])
+            scene:refreshDialogue(right_dialogue)
+        else
+            print("Right response: " .. right_dialogue["response"])
         end
     elseif pd.buttonJustReleased(pd.kButtonUp) then
-        if self.middle and self.middle:getSuccess() then
-            print("Middle success: " .. self.middle:getResponse())
-            scene:refreshDialogue(self.middle_dialogue)
-        elseif self.middle then
-            print("Middle response: " .. self.middle:getResponse())
+        if middle_dialogue["success"] == true then
+            print("Middle success: " .. middle_dialogue["response"])
+            scene:refreshDialogue(middle_dialogue)
+        else
+            print("Middle response: " .. middle_dialogue["response"])
         end
     end
 end
@@ -127,9 +83,12 @@ function scene:refreshDialogue(branch)
     print("refreshDialogue: Current branch is " .. tostring(self.current_branch))
 
     -- Print out the structure of the current branch for debugging
-    for k, v in pairs(self.current_branch) do
-        print("Branch key: " .. k .. ", value: " .. tostring(v))
-    end
 
-    self:resetDialogues(self.current_branch)
+    if not branch then
+        print("resetDialogues: Branch is nil")
+        return
+    end
+    left_dialogue = newBranch["left_dialogue"]
+    middle_dialogue = newBranch["middle_dialogue"]
+    right_dialogue = newBranch["right_dialogue"]
 end

@@ -4,7 +4,7 @@ class("SweetTalking").extends(NobleScene)
 
 local scene = SweetTalking
 local pd = playdate
-
+local interact = true
 -- Function to set initial values for the scene
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -12,6 +12,7 @@ function scene:setValues()
     self.color2 = Graphics.kColorWhite
     self.currentIngredient = "Onion_1"
     Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
+    interact = true
 end
 
 -- Function to initialize the scene
@@ -26,6 +27,7 @@ function scene:init()
         return -- Exit if there is no data to work with
     end
     self:setupDialogues()
+    self.currentResponse = ""
 end
 
 -- Helper function to setup dialogues
@@ -37,23 +39,34 @@ end
 
 -- Function to handle updating logic based on user input
 function scene:update()
+    if self.currentResponse ~= "" then
+        Noble.Text.draw(self.currentResponse, 20, 180)
+    end
+    if interact == false then
+        Noble.Text.draw("Scenes Over, Going Home", 20, 20)
+        return
+    end
+    Noble.Text.draw("Left " .. self.current_branch["left_dialogue"]["dialogue"], 20, 20)
+    Noble.Text.draw("Middle " .. self.current_branch["middle_dialogue"]["dialogue"], 20, 60)
+    Noble.Text.draw("Right " .. self.current_branch["right_dialogue"]["dialogue"], 20, 100)
     if pd.buttonJustReleased(pd.kButtonLeft) then
+        self.currentResponse = self.current_branch["left_dialogue"]["response"]
         self:processDialogue(self.current_branch["left_dialogue"])
     elseif pd.buttonJustReleased(pd.kButtonRight) then
+        self.currentResponse = self.current_branch["right_dialogue"]["response"]
         self:processDialogue(self.current_branch["right_dialogue"])
     elseif pd.buttonJustReleased(pd.kButtonUp) then
+        self.currentResponse = self.current_branch["middle_dialogue"]["response"]
         self:processDialogue(self.current_branch["middle_dialogue"])
     end
 end
 
 -- Function to refresh dialogue based on the current branch
 function scene:processDialogue(dialogue)
-    
-    print(dialogue["response"])
-
     if not dialogue["branch"] then
         print("No further branches available or branch data is missing.")
-        scene:exit()
+        pd.timer.performAfterDelay(3000, function () scene:exit()  end)
+        interact = false
         return
     end
 
@@ -68,4 +81,8 @@ function scene:processDialogue(dialogue)
     for k, v in pairs(self.current_branch) do
         print("Branch key: " .. k .. ", value: " .. tostring(v))
     end
+end
+function scene:exit() 
+    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
 end

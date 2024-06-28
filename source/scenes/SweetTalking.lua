@@ -1,4 +1,5 @@
 import 'dialogue/ingredientdialogue'
+import 'CoreLibs/Graphics'
 SweetTalking = {}
 class("SweetTalking").extends(NobleScene)
 
@@ -11,7 +12,8 @@ function scene:setValues()
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
     self.currentIngredient = "Onion_1"
-    Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
+    --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
+    pd.graphics.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     interact = true
 end
 
@@ -40,15 +42,15 @@ end
 -- Function to handle updating logic based on user input
 function scene:update()
     if self.currentResponse ~= "" then
-        Noble.Text.draw(self.currentResponse, 20, 180)
+        pd.graphics.drawTextInRect(self.currentResponse, 20, 180, 400, 100)
     end
     if interact == false then
-        Noble.Text.draw("Scenes Over, Going Home", 20, 20)
+        pd.graphics.drawTextInRect("Scenes Over, Going Home", 20, 20, 400, 100)
         return
     end
-    Noble.Text.draw("Left " .. self.current_branch["left_dialogue"]["dialogue"], 20, 20)
-    Noble.Text.draw("Middle " .. self.current_branch["middle_dialogue"]["dialogue"], 20, 60)
-    Noble.Text.draw("Right " .. self.current_branch["right_dialogue"]["dialogue"], 20, 100)
+    pd.graphics.drawTextInRect("Left: " .. self.current_branch["left_dialogue"]["dialogue"], 20, 20, 400, 100)
+    pd.graphics.drawTextInRect("Middle: " .. self.current_branch["middle_dialogue"]["dialogue"], 20, 60, 400, 100)
+    pd.graphics.drawTextInRect("Right: " .. self.current_branch["right_dialogue"]["dialogue"], 20, 100, 400, 100)
     if pd.buttonJustReleased(pd.kButtonLeft) then
         self.currentResponse = self.current_branch["left_dialogue"]["response"]
         self:processDialogue(self.current_branch["left_dialogue"])
@@ -63,6 +65,9 @@ end
 
 -- Function to refresh dialogue based on the current branch
 function scene:processDialogue(dialogue)
+    if dialogue["success"] == false then
+        return --prevents scene from exiting early
+    end
     if not dialogue["branch"] then
         print("No further branches available or branch data is missing.")
         pd.timer.performAfterDelay(3000, function () scene:exit()  end)

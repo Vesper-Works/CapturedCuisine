@@ -12,6 +12,7 @@ function scene:setValues()
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
     self.currentIngredient = "Onion_1"
+    self.reputation = 1.00
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     pd.graphics.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     interact = true
@@ -66,6 +67,7 @@ end
 -- Function to refresh dialogue based on the current branch
 function scene:processDialogue(dialogue)
     if dialogue["success"] == false then
+        self.reputation = self.reputation * 0.8 --for now, reduce multiplier on every failed attempt
         return --prevents scene from exiting early
     end
     if not dialogue["branch"] then
@@ -88,6 +90,8 @@ function scene:processDialogue(dialogue)
     end
 end
 function scene:exit() 
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+    pd.graphics.setFont(Noble.Text.FONT_MEDIUM)
+    print(self.reputation)
+    --table.insert(newIngredient["methodScores"], { "SweetTalking", 0.56 })
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
 end

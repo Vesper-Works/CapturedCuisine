@@ -12,6 +12,7 @@ import 'scenes/LoadSave'
 import "CoreLibs/timer"
 import "scenes/SweetTalking"
 local pd = playdate
+local gfx = pd.graphics
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be
 local openingCinematic = true --consider if we want the opening cinematic to be skipped
 Noble.Settings.setup({
@@ -31,4 +32,7 @@ pd.timer.performAfterDelay(mainMenuLoad, function ()
 end)
 function loadMainMenu() 
 	OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
+end
+function update() 
+	gfx.sprite.update()
 end

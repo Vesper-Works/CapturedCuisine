@@ -11,7 +11,7 @@ function scene:setValues()
 	self.color2 = Graphics.kColorWhite
     self.sceneText = "This is the template scene, replace this text with the required text later. Press B to exit"
     Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
-    testDialogue = Dialogue(self.sceneText, 400, 400, 400, 100)
+    testDialogue = Dialogue(self.sceneText, 200, 200, 400, 100)
     testDialogue:add() 
 end
 

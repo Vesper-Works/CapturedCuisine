@@ -24,9 +24,10 @@ function scene:setValues()
     self.gameStart = false
     self.senstivity = 6 -- not recommended to go past about 75, since it ends up being innacurate. will want to be a decently high number though. could be adjusted with a 'difficulty'?
     self.gameOverText = ""
-    self.gameTimer = pd.timer.new(10000)
+    self.timeLimit = 2000
+    self.gameTimer = pd.timer.new(self.timeLimit)
     self.gameTimer.paused = true
-
+    
 
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
@@ -50,7 +51,7 @@ function scene:update()
 
 
     self.gameTimer.updateCallback = function()
-        local timeRemaining = tostring(10 - math.floor(self.gameTimer.currentTime/1000))
+        local timeRemaining = tostring(math.floor(self.timeLimit) / 1000 - math.floor(self.gameTimer.currentTime/1000))
         if self.gameOver == false then Noble.Text.draw("Time Remaining:  " .. timeRemaining, 20, 100, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) end
     end
 
@@ -67,12 +68,11 @@ function scene:update()
     self.age = math.clamp(self.age, 0, self.perishAge)
 
     ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 60, 80, 10)
-    Noble.Text.draw("Current Age: " .. self.age, 20, 60, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont())
-    
+    Noble.Text.draw("Current Age: " .. self.age, 20, 60, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont())  
 end
 
 function scene:MinigameRoutine()
-    crankTick = pd.getCrankTicks(self.senstivity)
+    local crankTick = pd.getCrankTicks(self.senstivity)
     self.age += crankTick
 
 

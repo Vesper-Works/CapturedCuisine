@@ -18,6 +18,7 @@ function Dialogue:init(dial, x, y, width, height)
     self:setImage(dialogueImage)
     textSprite = gfx.sprite.new(dialogueImage)
     self:moveTo(x, y)
+    textSprite:setCenter(0, 0) --this means the sprite will be drawn at the top left corner
     textSprite:moveTo(x, y)
 end
 

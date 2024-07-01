@@ -19,15 +19,15 @@ function scene:setValues()
     self.timeLimit = 10
     self.age = 0
     self.targetAge = 30
-    self.perishAge = self.targetAge * 1.1
+    self.perishAge = self.targetAge * 2
     self.gameOver = false
     self.gameStart = false
     self.senstivity = 6 -- not recommended to go past about 75, since it ends up being innacurate. will want to be a decently high number though. could be adjusted with a 'difficulty'?
-    self.gameOverText = ""
     self.timeLimit = 2000
     self.gameTimer = pd.timer.new(self.timeLimit)
     self.gameTimer.paused = true
-    
+
+    self.chargeTimer = pd.timer.new(3000, function() self.gameStart = true end) 
 
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
@@ -35,40 +35,49 @@ end
 function scene:init()
     scene.super.init(self) --calls parent constructor
     self:setValues()
-    pd.timer.new(3000, function() self.gameStart = true end) 
 end
 
 function scene:update()
     scene.super.update(self)
     pd.timer.updateTimers()
 
-    if pd.buttonIsPressed(pd.kButtonB) then
-        scene.exit(self)
-    end
 
-    if (self.gameOver == false) and (self.gameStart == true) then self:MinigameRoutine() end
+
+    if (self.gameOver == false) and (self.gameStart == true) then 
+        self:MinigameRoutine() 
+        TimeBarRoutine(0, 230, 10, self.timeLimit, self.gameTimer, false)
+    end
     if (self.gameStart == true) then self.gameTimer.paused = false end
+    if (self.gameStart == false) then 
+        TimeBarRoutine(0, 230, 10, 3000, self.chargeTimer, true) 
+        Noble.Text.draw("You have " .. math.floor(tonumber(self.timeLimit / 1000)) .. " seconds.", 200, 215, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont()) 
+    end 
 
 
     self.gameTimer.updateCallback = function()
-        local timeRemaining = tostring(math.floor(self.timeLimit) / 1000 - math.floor(self.gameTimer.currentTime/1000))
-        if self.gameOver == false then Noble.Text.draw("Time Remaining:  " .. timeRemaining, 20, 100, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) end
     end
 
     self.gameTimer.timerEndedCallback = function()
-        self.gameOver = true
-        self.gameOverText = "GAME OVER!"
-        ExitAfterDelay()
+        self:GameOver()
     end
 
-    Noble.Text.draw(self.gameOverText, 20, 40, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) 
+    -- game loop
+    if self.gameOver == false then
 
-    Noble.Text.draw(self.ingredientStatus, 20, 20, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) 
+        --ingredient status text
+        Noble.Text.draw(self.ingredientStatus, 200, 20, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont()) 
+    
+        self.age = math.clamp(self.age, 0, self.perishAge)
+    
+        ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 60, 80, 10)
 
-    self.age = math.clamp(self.age, 0, self.perishAge)
+        Noble.Text.draw("Current Age: " .. self.age, 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont())  
+    end
 
-    ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 60, 80, 10)
-    Noble.Text.draw("Current Age: " .. self.age, 20, 60, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont())  
+    -- end of game
+    if self.gameOver == true then
+        Noble.Text.draw("Score: " .. CalcScore(self.age, self.targetAge), 200, 120, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont())  
+    end
 end
 
 function scene:MinigameRoutine()
@@ -84,11 +93,11 @@ function scene:MinigameRoutine()
         self.ingredientStatus = "JUST RIGHT"
     end
 
-    if self.age >= self.perishAge then
-        self.ingredientStatus = "INGREDIENT PERISHED"
-        self.gameOver = true
-        ExitAfterDelay()
-    end
+end
+
+function scene:GameOver()
+    self.gameOver = true
+    ExitAfterDelay()
 end
 
 function scene:exit()
@@ -100,9 +109,37 @@ function ExitAfterDelay()
     pd.timer.performAfterDelay(3000, function() scene:exit() end)
 end
 
+function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
+
+    local timeRemaining = timeLimit - timer.currentTime
+    
+    -- make bar
+    local length = (400 - 2*xOffset)
+    gfx.drawRect(xOffset, yOffset, length, width)
+    if reverse then
+        gfx.fillRect(xOffset, yOffset, length * (1 - (timeRemaining / timeLimit)), width)
+    else
+        gfx.fillRect(xOffset, yOffset, length * (timeRemaining / timeLimit), width)
+    end
+
+end
+
 function ProgressBarRoutine(age, targetAge, perishAge, xOffset, yOffset, width)
     local length = (400 - 2*xOffset)
     gfx.drawRect(xOffset, yOffset, length, width)
     gfx.drawLine(xOffset + length * (targetAge / perishAge), yOffset, xOffset + length * (targetAge / perishAge), yOffset + 8)
     gfx.fillRect(xOffset, yOffset, length * (age / perishAge), width)
+end
+
+function CalcScore(age, targetAge)
+    local distance
+    local score
+    distance = math.abs(targetAge - age)
+    if distance == 1 then score = 1 - (1 / targetAge)
+    elseif distance == 0 then score = 1
+    elseif distance == targetAge then score = 0 
+    else score = 1 / (distance)
+    end
+
+    return score
 end

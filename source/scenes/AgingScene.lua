@@ -23,12 +23,16 @@ function scene:setValues()
     self.xInd = 200
     print("setting phase seed")
     self.phaseSeed = math.random(1, 1000) / 7000
-    print("phase seed set".. self.phaseSeed)
+    print("phase seed set " .. self.phaseSeed)
+    self.score = 0
+
+    self.barVal = 0
+    self.maxBarVal = 100
 
     -- game logic stuff
     self.gameOver = false
     self.gameStarted = false
-    self.timeLimit = 10000
+    self.timeLimit = 25000
 
     self.gameTimer = tmr.new(self.timeLimit, function ()
         self.gameOver = true
@@ -38,8 +42,15 @@ function scene:setValues()
     self.startTimer = tmr.new(3000, function()
         self.gameStarted = true
         self.gameTimer.paused = false
+        self.scoreRepeatTimer.paused = false
     end)
     self.startTimer.paused = true
+
+    self.scoreRepeatTimer = tmr.new(100, function()
+        self.barVal = ScoreRoutine(self.barVal, self.maxBarVal, self.sprite, self.xInd, 20)
+    end)
+    self.scoreRepeatTimer.paused = true
+    self.scoreRepeatTimer.repeats = true
 
     -- sprite stuff
     self.image = gfx.image.new("assets/images/potato.png")
@@ -60,6 +71,8 @@ end
 function scene:start()
     scene.super.start(self)
     self.startTimer.paused = false
+
+    
 end
 
 function scene:update()
@@ -92,13 +105,22 @@ function scene:update()
         ZeroGRoutine(self.sprite, self.xVel)
         self.xVel = VelocityRoutine(self.xVel)
 
+        -- score stuff
+        DrawScoreBar(self.barVal, self.maxBarVal, self.sprite, 50, 5)
+
         -- while game is running, show timer bar and current time
         TimeBarRoutine(20, 20, 10, self.timeLimit, self.gameTimer, false)
         Noble.Text.draw("Time Remaining: " .. math.floor(tonumber(self.gameTimer.timeLeft / 1000)) .. " seconds", 200, 40, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
 
     SpriteRotationRoutine(self.sprite, self.rotationSpeed)
-    IndicatorRoutine(self.xInd, self.phaseSeed)
+    self.xInd = IndicatorRoutine(self.xInd, self.phaseSeed)
+
+    -- game over
+    if self.gameOver then
+        Noble.Text.draw("Game Over!", 200, 40, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont)
+        Noble.Text.draw("Final Score: " .. self.score, 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
+    end
 
     -- debug
     --print("xVel: " .. self.xVel)
@@ -110,6 +132,7 @@ end
 function scene:GameOver()
     self.gameOver = true
     self.xVel = 0
+    self.score = CalcScore(self.barVal, self.maxBarVal)
     ExitAfterDelay(self.sprite)
 end
 
@@ -144,21 +167,8 @@ function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
 
 end
 
-function CalcScore(age, targetAge)
-    local distance
-    local score
-    distance = math.abs(targetAge - age)
-    if distance == 1 then
-        score = 1 - (1 / targetAge)
-    elseif distance == 0 then
-        score = 1
-    elseif distance == targetAge then
-        score = 0
-    else
-        score = 1 / (distance)
-    end
-
-    return score
+function CalcScore(score, maxScore)
+    return score / maxScore
 end
 
 function SpriteRotationRoutine(sprite, speed)
@@ -198,19 +208,62 @@ function IndicatorRoutine(x, seed)
     local t = pd.getCurrentTimeMilliseconds()
 
     -- change x
-    x = (0.7*(math.sin((2/7000) * t + seed)) +
-    (-0.4)*(math.sin((3/7000) * t + seed)) +
-    0.4*(math.cos((2/7000) * t + seed)) +
-    math.cos((4/7000) * t + seed) +
-    0.7*(math.cos((7/7000) * t + seed))) * 50 + 200
+    x = (0.7*(math.sin((2/5500) * t + seed)) +
+    (-0.4)*(math.sin((3/5500) * t + seed)) +
+    0.4*(math.cos((2/5500) * t + seed)) +
+    math.cos((4/5500) * t + seed) +
+    0.7*(math.cos((7/5500) * t + seed))) * 50 + 200
 
     -- apply x
+    gfx.setLineWidth(1)
     gfx.drawLine(x, 90, x, 90+57) -- gfx.drawRoundRect(10, 90, 380, 57, 4)
+
+    return x
+
+    --[[
+
+    fourier wave for f/2
+    0.7sin(2t) + (-0.4)sin(3t) + 0.4cos(2t) + cos(4t) + 0.7cos(7t)
+
+    ]]--
 end
 
---[[
 
-//fourier wave for f/2
-0.7sin(2t) + (-0.4)sin(3t) + 0.4cos(2t) + cos(4t) + 0.7cos(7t)
 
-]]--
+function DrawScoreBar(score, maxScore, sprite, width, height)
+    -- Calculate the percentage
+    local percentage = score / maxScore
+
+    -- Calculate the length of the filled bar
+    local filledLength = width * percentage
+
+    -- Set the line width
+    gfx.setLineWidth(1)
+
+    -- Draw the background bar
+    gfx.drawRect(sprite.x - width/2, sprite.y - 50, width, height)
+
+    -- Draw the filled bar
+    gfx.fillRect(sprite.x - width/2, sprite.y - 50, filledLength, height)
+end
+
+function ScoreRoutine(score, maxScore, sprite, target, difficulty)
+    -- Increment score if self.xInd is within range
+
+    print("target: " .. target, "sprite.x: " .. sprite.x, "difference: " .. target-sprite.x, "difficulty: " .. difficulty)
+
+
+    if math.abs(target - sprite.x) <= difficulty then
+        score += 1
+        if score > maxScore then
+            score = maxScore
+        end
+    else
+        score -= 1
+        if score < 0 then
+            score = 0
+        end
+    end
+
+    return score
+end

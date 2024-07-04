@@ -2,6 +2,7 @@
 import "CoreLibs/crank"
 import "CoreLibs/timer"
 import "CoreLibs/graphics"
+import "CoreLibs/sprites"
 
 AgingScene = {}
 class("AgingScene").extends(NobleScene)
@@ -9,25 +10,43 @@ local scene = AgingScene
 local pd = playdate
 
 local gfx <const> = pd.graphics
+local tmr <const> = pd.timer
 
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
 	self.color2 = Graphics.kColorWhite
 
-    self.ingredientStatus = "Booting up time machine"
-    self.timeLimit = 10
-    self.age = 0
-    self.targetAge = 30
-    self.perishAge = self.targetAge * 2
+
+    -- line stuff
+    gfx.setLineWidth(4)
+    gfx.setLineCapStyle(gfx.kLineCapStyleRound)
+
+    -- game stuff
+    self.rotationSpeed = math.random(1, 5)
+    self.xVel = 0;
+
+    -- game logic stuff
     self.gameOver = false
-    self.gameStart = false
-    self.senstivity = 6 -- not recommended to go past about 75, since it ends up being innacurate. will want to be a decently high number though. could be adjusted with a 'difficulty'?
-    self.timeLimit = 2000
-    self.gameTimer = pd.timer.new(self.timeLimit)
+    self.gameStarted = false
+    self.timeLimit = 10000
+
+    self.gameTimer = tmr.new(self.timeLimit, function ()
+        self.gameOver = true
+    end)
     self.gameTimer.paused = true
 
-    self.chargeTimer = pd.timer.new(3000, function() self.gameStart = true end) 
+    self.startTimer = tmr.new(3000, function()
+        self.gameStarted = true
+        self.gameTimer.paused = false
+    end)
+    self.startTimer.paused = true
+
+    -- sprite stuff
+    self.image = gfx.image.new("assets/images/potato.png")
+    self.sprite = gfx.sprite.new(self.image)
+    self.sprite:moveTo(200, 120)
+    self.sprite:add()
 
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
@@ -37,82 +56,72 @@ function scene:init()
     self:setValues()
 end
 
+function scene:start()
+    scene.super.start(self)
+    self.startTimer.paused = false
+end
+
 function scene:update()
     scene.super.update(self)
-    pd.timer.updateTimers()
+    tmr.updateTimers()
 
-
-
-    if (self.gameOver == false) and (self.gameStart == true) then 
-        self:MinigameRoutine() 
-        TimeBarRoutine(0, 230, 10, self.timeLimit, self.gameTimer, false)
+    -- game logic
+    if not self.gameStarted then
+        TimeBarRoutine(20, 20, 10, 3000, self.startTimer, true)
+        Noble.Text.draw("Booting up the time machine!", 200, 40, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont) 
+        Noble.Text.draw("You have " .. math.floor(tonumber(self.timeLimit / 1000)) .. " seconds.", 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
-    if (self.gameStart == true) then self.gameTimer.paused = false end
-    if (self.gameStart == false) then 
-        TimeBarRoutine(0, 230, 10, 3000, self.chargeTimer, true) 
-        Noble.Text.draw("You have " .. math.floor(tonumber(self.timeLimit / 1000)) .. " seconds.", 200, 215, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont()) 
-    end 
 
-
-    self.gameTimer.updateCallback = function()
-    end
+    gfx.drawLine(40, 360, 360, 360)
 
     self.gameTimer.timerEndedCallback = function()
         self:GameOver()
     end
 
-    -- game loop
-    if self.gameOver == false then
+    -- debug
+    --print("xVel: " .. self.xVel)
+    --print("gameOver: " .. tostring(self.gameOver) .. " gameStarted: " .. tostring(self.gameStarted))
 
-        --ingredient status text
-        Noble.Text.draw(self.ingredientStatus, 200, 20, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont()) 
-    
-        self.age = math.clamp(self.age, 0, self.perishAge)
-    
-        ProgressBarRoutine(self.age, self.targetAge, self.perishAge, 60, 80, 10)
 
-        Noble.Text.draw("Current Age: " .. self.age, 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont())  
+    -- do rotation and zeroG and input stuff
+    if not self.gameOver and self.gameStarted then
+        ZeroGRoutine(self.sprite, self.xVel);
+        self.xVel = VelocityRoutine(self.xVel)
+
+        -- while game is running, show timer bar and current time
+        TimeBarRoutine(20, 20, 10, self.timeLimit, self.gameTimer, false)
+        Noble.Text.draw("Time Remaining: " .. math.floor(tonumber(self.gameTimer.timeLeft / 1000)) .. " seconds", 200, 40, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
 
-    -- end of game
-    if self.gameOver == true then
-        Noble.Text.draw("Score: " .. CalcScore(self.age, self.targetAge), 200, 120, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont())  
-    end
-end
-
-function scene:MinigameRoutine()
-    local crankTick = pd.getCrankTicks(self.senstivity)
-    self.age += crankTick
-
-
-    if self.age > self.targetAge then
-        self.ingredientStatus = "TOO OLD"
-    elseif self.age < self.targetAge then
-        self.ingredientStatus = "TOO YOUNG"
-    else
-        self.ingredientStatus = "JUST RIGHT"
-    end
-
+    SpriteRotationRoutine(self.sprite, self.rotationSpeed)
+    ClampPosition(self.sprite, 40, 360)
 end
 
 function scene:GameOver()
     self.gameOver = true
-    ExitAfterDelay()
+    self.xVel = 0
+    ExitAfterDelay(self.sprite)
 end
 
 function scene:exit()
     self.gameOver = true
+
+    
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
 end
 
-function ExitAfterDelay()
-    pd.timer.performAfterDelay(3000, function() scene:exit() end)
+function ExitAfterDelay(sprite)
+
+    tmr.performAfterDelay(3000, function()
+        scene:exit()
+        sprite:remove()
+    end)
 end
 
 function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
 
     local timeRemaining = timeLimit - timer.currentTime
-    
+
     -- make bar
     local length = (400 - 2*xOffset)
     gfx.drawRect(xOffset, yOffset, length, width)
@@ -124,22 +133,51 @@ function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
 
 end
 
-function ProgressBarRoutine(age, targetAge, perishAge, xOffset, yOffset, width)
-    local length = (400 - 2*xOffset)
-    gfx.drawRect(xOffset, yOffset, length, width)
-    gfx.drawLine(xOffset + length * (targetAge / perishAge), yOffset, xOffset + length * (targetAge / perishAge), yOffset + 8)
-    gfx.fillRect(xOffset, yOffset, length * (age / perishAge), width)
-end
-
 function CalcScore(age, targetAge)
     local distance
     local score
     distance = math.abs(targetAge - age)
-    if distance == 1 then score = 1 - (1 / targetAge)
-    elseif distance == 0 then score = 1
-    elseif distance == targetAge then score = 0 
-    else score = 1 / (distance)
+    if distance == 1 then
+        score = 1 - (1 / targetAge)
+    elseif distance == 0 then
+        score = 1
+    elseif distance == targetAge then
+        score = 0
+    else
+        score = 1 / (distance)
     end
 
     return score
+end
+
+function SpriteRotationRoutine(sprite, speed)
+    -- get rot
+    local currentRot = sprite:getRotation(speed)
+    -- add rot
+    currentRot += speed
+    -- set rot
+    sprite:setRotation(currentRot)
+end
+
+function ZeroGRoutine(sprite, speed)
+    -- get pos
+    local x, y = sprite:getPosition()
+    -- add pos
+    x += speed
+    -- set pos
+    sprite:moveTo(x, y)
+end
+
+function VelocityRoutine(xVelocity)
+    local change, acceleratedChange = playdate.getCrankChange()
+    return xVelocity + (change / 100)
+end
+
+function ClampPosition(sprite, min, max)
+    local x, y = sprite:getPosition()
+    if x < min then
+        sprite:moveTo(min, y)
+    elseif x > max then
+        sprite:moveTo(max, y)
+    end
 end

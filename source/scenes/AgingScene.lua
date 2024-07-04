@@ -17,14 +17,13 @@ function scene:setValues()
     self.color1 = Graphics.kColorBlack
 	self.color2 = Graphics.kColorWhite
 
-
-    -- line stuff
-    gfx.setLineWidth(4)
-    gfx.setLineCapStyle(gfx.kLineCapStyleRound)
-
     -- game stuff
-    self.rotationSpeed = math.random(1, 5)
-    self.xVel = 0;
+    self.rotationSpeed = math.random(1, 3)
+    self.xVel = 0
+    self.xInd = 200
+    print("setting phase seed")
+    self.phaseSeed = math.random(1, 1000) / 7000
+    print("phase seed set".. self.phaseSeed)
 
     -- game logic stuff
     self.gameOver = false
@@ -45,6 +44,8 @@ function scene:setValues()
     -- sprite stuff
     self.image = gfx.image.new("assets/images/potato.png")
     self.sprite = gfx.sprite.new(self.image)
+    self.sprite:setZIndex(10)
+    self.sprite:setScale(0.75)
     self.sprite:moveTo(200, 120)
     self.sprite:add()
 
@@ -64,6 +65,15 @@ end
 function scene:update()
     scene.super.update(self)
     tmr.updateTimers()
+    playdate.frameTimer.updateTimers()
+
+    -- draw indicators
+    gfx.setLineWidth(3)
+    gfx.drawLine(self.sprite.x, 86, self.sprite.x, 94)
+
+    gfx.setLineWidth(2)
+    gfx.setStrokeLocation(gfx.kStrokeOutside)
+    gfx.drawRoundRect(10, 90, 380, 57, 4)
 
     -- game logic
     if not self.gameStarted then
@@ -72,20 +82,14 @@ function scene:update()
         Noble.Text.draw("You have " .. math.floor(tonumber(self.timeLimit / 1000)) .. " seconds.", 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
 
-    gfx.drawLine(40, 360, 360, 360)
-
     self.gameTimer.timerEndedCallback = function()
         self:GameOver()
+        self.xVel = 0
     end
-
-    -- debug
-    --print("xVel: " .. self.xVel)
-    --print("gameOver: " .. tostring(self.gameOver) .. " gameStarted: " .. tostring(self.gameStarted))
-
 
     -- do rotation and zeroG and input stuff
     if not self.gameOver and self.gameStarted then
-        ZeroGRoutine(self.sprite, self.xVel);
+        ZeroGRoutine(self.sprite, self.xVel)
         self.xVel = VelocityRoutine(self.xVel)
 
         -- while game is running, show timer bar and current time
@@ -94,7 +98,13 @@ function scene:update()
     end
 
     SpriteRotationRoutine(self.sprite, self.rotationSpeed)
-    ClampPosition(self.sprite, 40, 360)
+    IndicatorRoutine(self.xInd, self.phaseSeed)
+
+    -- debug
+    --print("xVel: " .. self.xVel)
+    --print("gameOver: " .. tostring(self.gameOver) .. " gameStarted: " .. tostring(self.gameStarted))
+    --print("lineWidth: " .. gfx.getLineWidth())
+    --print(self.phaseSeed)
 end
 
 function scene:GameOver()
@@ -106,12 +116,10 @@ end
 function scene:exit()
     self.gameOver = true
 
-    
     Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
 end
 
 function ExitAfterDelay(sprite)
-
     tmr.performAfterDelay(3000, function()
         scene:exit()
         sprite:remove()
@@ -119,7 +127,10 @@ function ExitAfterDelay(sprite)
 end
 
 function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
+    -- set line width
+    gfx.setLineWidth(1)
 
+    -- get time remaining
     local timeRemaining = timeLimit - timer.currentTime
 
     -- make bar
@@ -166,6 +177,7 @@ function ZeroGRoutine(sprite, speed)
     x += speed
     -- set pos
     sprite:moveTo(x, y)
+    ClampPosition(sprite, 40, 360)
 end
 
 function VelocityRoutine(xVelocity)
@@ -181,3 +193,24 @@ function ClampPosition(sprite, min, max)
         sprite:moveTo(max, y)
     end
 end
+
+function IndicatorRoutine(x, seed)
+    local t = pd.getCurrentTimeMilliseconds()
+
+    -- change x
+    x = (0.7*(math.sin((2/7000) * t + seed)) +
+    (-0.4)*(math.sin((3/7000) * t + seed)) +
+    0.4*(math.cos((2/7000) * t + seed)) +
+    math.cos((4/7000) * t + seed) +
+    0.7*(math.cos((7/7000) * t + seed))) * 50 + 200
+
+    -- apply x
+    gfx.drawLine(x, 90, x, 90+57) -- gfx.drawRoundRect(10, 90, 380, 57, 4)
+end
+
+--[[
+
+//fourier wave for f/2
+0.7sin(2t) + (-0.4)sin(3t) + 0.4cos(2t) + cos(4t) + 0.7cos(7t)
+
+]]--

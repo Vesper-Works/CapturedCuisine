@@ -9,7 +9,6 @@ class('Dialogue').extends(gfx.sprite)
 function Dialogue:init(dial, x, y, width, height)
     Dialogue.super.init(self)
     self.dial = dial --json attributes for the dialogue system are parsed through here
-    self:moveTo(x, y)
     local dialogueImage = gfx.image.new(width, height)
     gfx.pushContext(dialogueImage)
         gfx.drawRect(0, 0, width, height)

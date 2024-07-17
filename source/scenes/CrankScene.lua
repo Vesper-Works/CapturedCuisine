@@ -1,9 +1,15 @@
 import 'CoreLibs/Graphics'
+import 'trackminigame/wood'
 CrankScene = {}
 class("CrankScene").extends(NobleScene)
 local scene = CrankScene
 local pd = playdate
 local rectSprite
+local track
+local offset
+local woods = {}
+local index = 0
+local speed = 5
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
@@ -17,25 +23,37 @@ function scene:setValues()
     rectSprite:setZIndex(30) --should allow sprite to be above arc
     rectSprite:add()
     self.lastPosition = 0
+    track = pd.geometry.arc.new(200, 100, 100, 120, 240) --creation of an arc
+    local point = track:pointOnArc(0)
+    rectSprite:moveTo(point.x, point.y)
+    offset = 0
 end
 function scene:init() 
     scene.super.init(self)
     self:setValues()
 end
 function scene:update()
-    local track = pd.geometry.arc.new(200, 100, 100, 120, 240) --creation of an arc
     pd.graphics.drawArc(track)
     local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
-    local point = track:pointOnArc(rectSprite.x, rectSprite.y)
-    local centreX = (200 + 400) / 2 --convert playdate coordinates to cartesian
-    local centreY = (100 + 240) / 2
-    local movementAngle = math.max(120, math.min(240, pd.getCrankPosition())) --returns a value between 120 and 240
-    local radiansMovement = math.rad(movementAngle) --lua math uses radians
-    --is angle change since last callback
-    if change ~= 0 then
-        accelerateChange = math.abs(accelerateChange) --this ensures that accelerateChange is positive acceleration to prevent a negative * negative outcome
-        accelerateChange = accelerateChange / 10
-        rectSprite:moveTo(centreX + math.sin(radiansMovement) * 100, centreY - math.cos(radiansMovement) * 100)
+    offset = offset + pd.getCrankChange()
+    offset = math.min(track:length(), math.max(0, offset))
+    local point = track:pointOnArc(offset)
+    rectSprite:moveTo(point.x, point.y)
+    if pd.buttonJustReleased(pd.kButtonB) then
+        local woodObject = Wood(point.x, point.y, 20, 20, point.x) 
+        index = index + 1
+        table.insert(woods, index, woodObject)
     end
-    
+    for i=1,#woods do
+        if woods[i] == nil then
+            return
+        else
+            woods[i]:moveTo(woods[i].x, (woods[i].y - speed))
+            if woods[i].x <= 0 or woods[i].x >= 400 or woods[i].y <= 0 then --should the x boundary be breached or the upper y boundary (it will never go below the arc)
+                woods[i]:remove() --remove sprite from render
+                table.remove(woods, i) --remove from table
+                index = index - 1
+            end
+        end
+    end
 end

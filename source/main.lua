@@ -12,6 +12,7 @@ import 'scenes/LoadSave'
 import "CoreLibs/timer"
 import "scenes/SweetTalking"
 import "scenes/CrankScene"
+import 'scenes/MainMenuGrid'
 local pd = playdate
 local gfx = pd.graphics
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be
@@ -36,4 +37,5 @@ function loadMainMenu()
 end
 function update() 
 	gfx.sprite.update()
+	pd.timer.updateTimers()
 end

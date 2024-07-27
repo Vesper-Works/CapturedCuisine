@@ -15,10 +15,10 @@ gridview:setCellPadding(2, 2, 2, 2) --creates a small border for each cell
 local gridviewSprite = gfx.sprite.new() --sprite created to prevent smearing
 gridviewSprite:setCenter(0, 0)
 gridviewSprite:moveTo(100, 35)
-gridviewSprite:add()
 function scene:init()
     scene.super.init(self) 
     self.menu = nil
+    pd.timer.performAfterDelay(1000, function() gridviewSprite:add() end) --ensures the sprite doesn't appear between scene transitions
 end
 function gridview:drawCell(section, row, column, selected, x, y, width, height) --use this method to overwrite the drawing of each cell with sprite (later)
     if selected then

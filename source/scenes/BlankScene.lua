@@ -29,6 +29,6 @@ function scene:update()
 end
 function scene:exit()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
     testDialogue:remove()  --for some reason b needs to be pressed twice to remove dialogue, then exit scene
 end

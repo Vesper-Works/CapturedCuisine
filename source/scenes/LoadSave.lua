@@ -2,7 +2,7 @@ LoadSave = {}
 class("LoadSave").extends(NobleScene)
 local scene = LoadSave
 local pd = playdate
-local noSavedGame = false
+local noSavedGame = true
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
@@ -33,5 +33,5 @@ function scene:loadGame()
 end
 function scene:exit() 
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

@@ -82,6 +82,6 @@ function scene:exit()
     end
     collideSprite:remove()
     rectSprite:remove()
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
     stopUpdate = false
 end

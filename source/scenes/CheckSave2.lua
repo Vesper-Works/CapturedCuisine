@@ -35,9 +35,9 @@ end
 function scene:loadGame() 
     Noble.Text.draw("Loading game...", 80, 120)
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(ExampleScene, nil, Noble.Transition.CrossDissolve)
+    Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve)
 end
 function scene:exit() 
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

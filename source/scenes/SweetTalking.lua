@@ -93,5 +93,5 @@ function scene:exit()
     pd.graphics.setFont(Noble.Text.FONT_MEDIUM)
     print(self.reputation)
     --table.insert(newIngredient["methodScores"], { "SweetTalking", 0.56 })
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

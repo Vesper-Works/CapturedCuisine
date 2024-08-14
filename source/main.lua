@@ -5,6 +5,7 @@ import 'utilities/Utilities'
 import 'scenes/ExampleScene'
 import 'scenes/ExampleScene2'
 import 'scenes/OpeningScene'
+import 'scenes/IncredientTestScene'
 import "CoreLibs/timer"
 local pd = playdate
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be
@@ -16,11 +17,11 @@ Noble.Settings.setup({
 Noble.GameData.setup({
 	Score = 0
 })
-Noble.showFPS = true
-Noble.new(OpeningScene)
+Noble.showFPS = false
+Noble.new(IncredientTestScene)
 pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
 function loadMainMenu() 
-	OpeningScene.exit()
+	--IncredientTestScene.exit()
 end

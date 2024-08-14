@@ -43,7 +43,9 @@ luac.out
 *.pdx
 
 .vscode
+.vs
 
 builds/
+build/
 
 source/libraries/noble/docs/

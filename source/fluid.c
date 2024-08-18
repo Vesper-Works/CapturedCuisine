@@ -1,6 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+//#define TARGET_PLAYDATE 1;
+//#define TARGET_SIMULATOR 0;
+//#if TARGET_PLAYDATE
+//#define __FPU_PRESENT 1
+//#define __CC_ARM
+//
+//#include "core_cm7.h"
+//#endif
+//
+//#if TARGET_SIMULATOR
+//
+//#include "intrin.h"
+//#endif
 
 #define N 30  // Grid size
 #define STEPS 1.f  // Number of simulation steps
@@ -313,7 +326,7 @@ static float bilinear_interpolate(float* density, float x, float y) {
 	return q;
 }
 
-void render(int xOffset, int yOffset) {
+static void render(int xOffset, int yOffset) {
 	for (int j = yOffset; j < renderSizeY + yOffset; j++) {
 		for (int i = xOffset; i < renderSizeX + xOffset; i += 8) {
 			uint8_t column = 0;

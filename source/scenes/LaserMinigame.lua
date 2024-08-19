@@ -2,9 +2,9 @@ import "CoreLibs/graphics"
 import "utilities/IngredientHandler"
 import "CoreLibs/utilities/sampler"
 
-IncredientTestScene = {}
-class("IncredientTestScene").extends(NobleScene)
---local scene = IncredientTestScene --when refering to scene, it's referring to an instance of the OpeningScene object
+LaserMinigame = {}
+class("LaserMinigame").extends(NobleScene)
+--local scene = LaserMinigame --when refering to scene, it's referring to an instance of the OpeningScene object
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 local img
@@ -153,7 +153,7 @@ local laserCutAnimation = Sequence.new():from(1):to(0, 0.5, "inOutQuad"):callbac
     end
 )
 
-IncredientTestScene.inputHandler = {
+LaserMinigame.inputHandler = {
     rightButtonHold = function()
         splitLineOffset:offset(3, 0)
     end,
@@ -171,25 +171,25 @@ IncredientTestScene.inputHandler = {
     end
 }
 
-function IncredientTestScene:setValues()
+function LaserMinigame:setValues()
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
 end
 
-function IncredientTestScene:start()
-    --local backgroundImage = gfx.image.new("assets/images/LaserCutterBackground")
-    --local backgroundSprite = NobleSprite(backgroundImage)
-    --backgroundSprite:add(200, 120)
-    Noble.Input.setHandler(IncredientTestScene.inputHandler)
+function LaserMinigame:start()
+    local backgroundImage = gfx.image.new("assets/images/LaserCutterBackground")
+    local backgroundSprite = NobleSprite(backgroundImage)
+    backgroundSprite:add(200, 120)
+    Noble.Input.setHandler(LaserMinigame.inputHandler)
 end
 
-function IncredientTestScene:init()
+function LaserMinigame:init()
     gfx.sprite.setAlwaysRedraw(false)
-    IncredientTestScene.super.init(self) --calls parent constructor
+    LaserMinigame.super.init(self) --calls parent constructor
     --pd.display.setRefreshRate(500)
     self:setValues()
 
-    local menu = pd.getSystemMenu()
+   --[[ local menu = pd.getSystemMenu()
     local updating = false
     local updateSimulation = Sequence.new():from(20):to(80, 0.1, "linear"):callback(function()
         fluid.reinitialise(fluidSettings[1], fluidSettings[2], fluidSettings[3], fluidSettings[4])
@@ -225,10 +225,10 @@ function IncredientTestScene:init()
     end)
 
     fluid.initialise()
-    --[[
+]]
     IngredientHandler.loadIngredients()
     IngredientHandler.test()
-    img = gfx.image.new("assets/images/Shoe")--IngredientHandler.getSpriteForIngredientByName("Glow Leeks")
+    img = IngredientHandler.getSpriteForIngredientByName("Glow Leeks")
     local newPoint = function(x, y) return pd.geometry.point.new(x, y):offsetBy(168, 88) end
     local polygon = pd.geometry.polygon.new(newPoint(0, 0), newPoint(0, 64 + 0), newPoint(64 + 0, 64 + 0),
         newPoint(64 + 0, 0))
@@ -243,18 +243,14 @@ function IncredientTestScene:init()
     laserBaseSouth = gfx.image.new("assets/images/laserbase_south")
     laserBaseEast = gfx.image.new("assets/images/laserbase_east")
     laserBaseWest = gfx.image.new("assets/images/laserbase_west")
-    ]]
+    
 end
 
-function IncredientTestScene:update()
-    IncredientTestScene.super.update(self)
-    fluid.update()
-end
+function LaserMinigame:update()
+    LaserMinigame.super.update(self)
 
---[[
-    Sequence.update()
-
-    --[[ test += pd.getCrankChange() / 360
+    --[[
+    test += pd.getCrankChange() / 360
     gfx.pushContext()
     gfx.setStencilPattern(8)
     --img:drawFaded(100, 100, 1-test, gfx.image.kDitherTypeBayer8x8)
@@ -263,7 +259,7 @@ end
     img:drawBlurred(100, 100, test, 3, gfx.image.kDitherTypeDiagonalLine)
     --img:removeMask()
     gfx.popContext()
-
+]]
     splitLine = rotateLineSegmentAroundPoint(pd.getCrankPosition()) -- pd.geometry.lineSegment.new(20, 64, 0, 14)
 
 
@@ -293,7 +289,7 @@ end
                 splitSprite[7]:translate(0, splitSprite[6])
             end
         end
-
+        gfx.setClipRect
         splitSprite[1]:draw(spriteX, spriteY)
 
         gfx.pushContext()
@@ -314,7 +310,8 @@ end
                 end
             end
         end
-        --sasprint(pixelCount)
+        sasprint(pixelCount)
+        ]]
     end
 
     gfx.popContext()
@@ -382,8 +379,8 @@ end
 
     --splitLineStensil:draw(0,0)
 end
-]]
-function IncredientTestScene:exit()
+
+function LaserMinigame:exit()
     Noble.transition(ExampleScene, nil, Noble.Transition.DipToBlack) --move to the main scene
 end
 

@@ -10,7 +10,12 @@ import 'scenes/BlankScene'
 import 'scenes/CheckSave'
 import 'scenes/CheckSave2'
 import 'scenes/LoadSave'
+import 'scenes/SplashScreenScene'
+import 'scenes/OptionsScene'
+import 'scenes/CutScene'
 import "CoreLibs/timer"
+
+
 local pd = playdate
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be
 local openingCinematic = true --consider if we want the opening cinematic to be skipped
@@ -25,10 +30,10 @@ Noble.GameData.setup({
 	IngredientInfo = {}
 })
 Noble.showFPS = true
-Noble.new(OpeningScene)
+Noble.new(SplashScreenScene)
 pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
 function loadMainMenu() 
-	OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
+	SplashScreenScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
 end

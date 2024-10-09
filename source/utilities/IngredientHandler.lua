@@ -3,46 +3,54 @@ IngredientHandler = {}
 
 -- Global table for storing ingredient data
 IngredientHandler.ingredients = {}
+
 local ingredientNameToIndex = {}
 
 local pd = playdate
 
--- Method to load ingredient data from a CSV file
+---Splits a string into a table based on a split character
+---@param string string
+---@param splitChar string
+---@return table
+local function stringToTable(string, splitChar)
+    local result = {}
+    if string then
+        for value in string:gmatch("[^(" .. splitChar .. ")]+") do --Iterate through segements seperated by splitChar
+            value = value:match("^%s*(.*)"):match("(.-)%s*$")      --Remove leading and trailing spaces
+            table.insert(result, value)
+        end
+    end
+    return result
+end
+
+-- Method to load ingredient data from a TSV file, call on game startup
 function IngredientHandler.loadIngredients()
-    -- Your code to load ingredient data from the CSV file using the Playdate SDK goes here
-    -- For example, you can use the Playdate SDK's file I/O functions to read the CSV file
-
-    --io.write(pd.file.listFiles(".", true))
-
-    local file = playdate.file.open("Ingredients.tsv", pd.file.kFileRead)
-    local csvLine = file:readline()
+    local file = playdate.file.open("assets/data/Ingredients.tsv", pd.file.kFileRead)
+    local tsvLine = file:readline()
 
     repeat
-        
-
-        -- Assuming you have loaded the CSV data into a string called "csvLine"
-        local csvData = {}
-        for value in csvLine:gmatch("[^	]+") do
-            table.insert(csvData, value)
+        local tsvData = {}
+        for value in tsvLine:gmatch("[^	]+") do
+            table.insert(tsvData, value)
         end
-        ingredientNameToIndex[csvData[1]] = #IngredientHandler.ingredients + 1
-        
+        ingredientNameToIndex[tsvData[1]] = #IngredientHandler.ingredients + 1
+
         local ingredient = {
-            name = csvData[1],
-            properties = csvData[2],
-            preferredPreparationMethods = csvData[3],
-            dislikedPreparationMethods = csvData[4],
-            orderOfPreparation = csvData[5],
-            pairingSuggestions = csvData[6],
-            sentient = csvData[7] ~= "",
-            personality = csvData[8],
-            diagAngry = csvData[9] and table.pack(csvData[9]:gmatch("[^,]+")),
-            diagHappy = csvData[10] and table.pack(csvData[10]:gmatch("[^,]+")),
-            diagConfused = csvData[11] and table.pack(csvData[11]:gmatch("[^,]+"))
+            name = tsvData[1],
+            properties = tsvData[2],
+            dislikedPreparationMethods = tsvData[3],
+            preferredPreparationMethods = stringToTable(tsvData[4], "→"),
+            pairingSuggestions = stringToTable(tsvData[5], ","),
+            sentient = tsvData[6] ~= "",
+            personality = tsvData[7],
+            startingIngredient = tsvData[8] ~= "",
+            diagAngry = stringToTable(tsvData[9], ","),
+            diagHappy = stringToTable(tsvData[10], ","),
+            diagConfused = stringToTable(tsvData[11], ",")
         }
         table.insert(IngredientHandler.ingredients, ingredient)
-        csvLine = file:readline()
-    until csvLine == nil
+        tsvLine = file:readline()
+    until tsvLine == nil
 end
 
 function IngredientHandler.getIngredientByName(name)
@@ -50,15 +58,20 @@ function IngredientHandler.getIngredientByName(name)
 end
 
 function IngredientHandler.createIngredientInstanceByName(name)
-    local newIngredient =  table.deepcopy(IngredientHandler.getIngredientByName(name))
+    local newIngredient = table.deepcopy(IngredientHandler.getIngredientByName(name))
+    newIngredient["preparedMethods"] = {}
+    newIngredient["methodScores"] = {}
+
+    table.insert(newIngredient["methodScores"], { "Chopping", 0.56 })
     return newIngredient
 end
 
 function IngredientHandler.getRandomIngredient()
     return IngredientHandler.ingredients[math.random(1, #IngredientHandler.ingredients)]
 end
+
 function IngredientHandler.createRandomIngredientInstance()
-    return table.deepcopy(IngredientHandler.ingredients[math.random(1, #IngredientHandler.ingredients)])
+    return IngredientHandler.createIngredientInstanceByName(IngredientHandler.getRandomIngredient().name)
 end
 
 -- test all get/create functions
@@ -70,7 +83,7 @@ function IngredientHandler.test()
     -- Test the createIngredientInstanceByName function
     local instance = IngredientHandler.createIngredientInstanceByName("Glow Leeks")
     instance.name = "glorpus" -- Output: Random ingredient name
-    print(instance.name) -- Output: Random ingredient name
+    print(instance.name)      -- Output: Random ingredient name
     -- Test the getRandomIngredient function
     local randomIngredient = IngredientHandler.getRandomIngredient()
     print(randomIngredient.name) -- Output: Random ingredient name
@@ -78,10 +91,6 @@ function IngredientHandler.test()
     -- Test the createRandomIngredientInstance function
     local randomInstance = IngredientHandler.createRandomIngredientInstance()
     print(randomInstance.name) -- Output: Random ingredient name
-
-    local dingredient = IngredientHandler.getIngredientByName("glorpus")
-    print(dingredient.name) -- Output: Tomato
-
 end
 
 function IngredientHandler.getSpriteForIngredient(ingredient)
@@ -90,11 +99,13 @@ function IngredientHandler.getSpriteForIngredient(ingredient)
     end
     return playdate.graphics.image.new("assets/images/default")
 end
+
 function IngredientHandler.getSpriteForIngredientByName(ingredient)
     if playdate.file.exists("assets/images/ingredients/" .. ingredient) then
         return playdate.graphics.image.new("assets/images/ingredients/" .. ingredient)
     end
     return playdate.graphics.image.new("assets/images/default")
 end
+
 -- Return the IngredientHandler table
 return IngredientHandler

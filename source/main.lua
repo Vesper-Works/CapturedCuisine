@@ -10,6 +10,7 @@ import 'scenes/CheckSave'
 import 'scenes/CheckSave2'
 import 'scenes/LoadSave'
 import 'scenes/AgingScene'
+import 'scenes/LaserMinigame'
 import "CoreLibs/timer"
 import "scenes/SweetTalking"
 import "scenes/CrankScene"
@@ -29,8 +30,9 @@ Noble.GameData.setup({
 	Orders = {},
 	IngredientInfo = {}
 })
-Noble.showFPS = true
-Noble.new(OpeningScene)
+Noble.showFPS = false
+--Noble.new(LaserMinigame)
+
 pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
@@ -40,4 +42,5 @@ end
 function update() 
 	gfx.sprite.update()
 	pd.timer.updateTimers()
+	--IncredientTestScene.exit()
 end

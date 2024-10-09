@@ -1,8 +1,8 @@
-name=Captured Cuisine
+name=Captured_Cuisine
 author=SKNT Games
 description=This is a Noble Engine game.
-bundleID=com.yourdomain.GameName
+bundleID=com.yourdomain.Captured_Cuisine
 version=0.0.1
-buildNumber=8
+buildNumber=54
 imagePath=assets/launcher/
 launchSoundPath=assets/launcher/sound.wav

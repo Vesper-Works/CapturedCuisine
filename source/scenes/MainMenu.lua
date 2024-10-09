@@ -1,4 +1,3 @@
-
 MainMenu = {}
 class("MainMenu").extends(NobleScene)
 local scene = MainMenu
@@ -83,12 +82,11 @@ function scene:exit()
 	self.sequence:start();
 end
 
-function scene:setUpMenu(__menu)
-    __menu:addItem("Continue", function() Noble.transition(LoadSave, nil, Noble.Transition.CrossDissolve) end)
-    __menu:addItem("Start Game", function() Noble.transition(CheckSave, nil, Noble.Transition.CrossDissolve) end)
-    __menu:addItem("Endless", function() Noble.transition(CheckSave2, nil, Noble.Transition.CrossDissolve) end)
+function MainMenu:setUpMenu(__menu)
+    __menu:addItem("Continue", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
+    __menu:addItem("Start Game", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
+    __menu:addItem("Endless", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
     __menu:addItem("Options", function() Noble.transition(BlankScene, nil, Noble.Transition.CrossDissolve) end)
-	__menu:addItem("Sweet Talking", function() Noble.transition(SweetTalking, nil, Noble.Transition.CrossDissolve) end)
-	__menu:addItem("Crank", function() Noble.transition(CrankScene, nil, Noble.Transition.CrossDissolve) end)
+    __menu:addItem("Aging Ex.", function() Noble.transition(AgingScene, nil, Noble.Transition.CrossDissolve) end)
     --something to consider, if a player choses to pick endless/start game while a saved game exists, then we may need to include a warning message/scene before it loads
 end

@@ -9,6 +9,7 @@ import 'scenes/BlankScene'
 import 'scenes/CheckSave'
 import 'scenes/CheckSave2'
 import 'scenes/LoadSave'
+import 'scenes/AgingScene'
 import "CoreLibs/timer"
 import "scenes/SweetTalking"
 import "scenes/CrankScene"

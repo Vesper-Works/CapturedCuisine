@@ -17,7 +17,8 @@ Noble.Settings.setup({
 Noble.GameData.setup({
 	Score = 0
 })
-Noble.showFPS = false
+Noble.showFPS = true
+IngredientHandler.loadIngredients()
 Noble.new(FryingMinigameScene)
 pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence

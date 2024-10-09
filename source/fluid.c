@@ -19,7 +19,7 @@
 #define STEPS 1.f  // Number of simulation steps
 #define DT 0.02f  // Time step
 #define DIFF 0.02f  // Diffusion rate
-#define VISC 0.00001f  // Viscosity
+#define VISC 0.0001f  // Viscosity
 #define COOL 0.001f   // Cooling rate
 #define BURN 0.1f  // Burning rate
 #define BUOY 0.5f  // Buoyancy
@@ -30,6 +30,7 @@ static int ESIZE = N;
 #define IX(i, j) ((i) + (ESIZE + 2) * (j))
 #define SWAP(x0,x) {float* tmp=x0;x0=x;x=tmp;}
 #define RENDER_TO_SIM(x, size) (x - xOffset) * (ESIZE - 1) / (size - 1) + 1
+#define RENDER_TO_SIMY(x, size) (x - yOffset) * (ESIZE - 1) / (size - 1) + 1
 
 #include "pd_api.h"
 #include "fluid.h"
@@ -42,14 +43,24 @@ static float* dens, * dens_fuel;
 static float* temp;
 uint8_t* renderBuffer;
 static int interp = 0;
-static int renderSizeX = 207, renderSizeY = 161;
-const int xOffset = 96;
-const int yOffset = 30;
+static int simState = 0; //0 = rotating, ~0 = flame intensity control
+static float fireStrength = 0.4f;
+static float crankAngle = 0.f;
+static int sourcePosX, sourcePosY;
+static float sourceVelX, sourceVelY;
+static int renderSizeX = 200, renderSizeY = 200;
+const int xOffset = 100;
+const int yOffset = 20;
+static LCDBitmap* ingredientBitmap;
+int iWidth, iHeight, iRowBytes;
+uint8_t* iMask = NULL, * iData = NULL;
 static PlaydateAPI* pd = NULL;
 static int fluid_update(lua_State* L);
 static int fluid_initialise(lua_State* L);
 static int fluid_reinitialise(lua_State* L);
 static int fluid_addSource(lua_State* L);
+static int fluid_flipState(lua_State* L);
+static int fluid_setTargetPosition(lua_State* L);
 
 
 const lua_reg fluid[] =
@@ -58,10 +69,19 @@ const lua_reg fluid[] =
 	{ "initialise",		fluid_initialise },
 	{ "reinitialise",   fluid_reinitialise },
 	{ "addSource",      fluid_addSource },
+	{ "flipState",      fluid_flipState },
+	{ "setTargetPosition", fluid_setTargetPosition },
 	{ NULL,				NULL }
 };
 
-static void add_source(float* x, float* s, float dt)
+//lerp
+static float lerp(float a, float b, float t) {
+	float diff = fmodf(b - a, 360.0f);
+	float wrappedDiff = fmodf((diff + 540.0f), 360.0f) - 180.0f;
+	return fmodf(a + t * wrappedDiff + 360.0f, 360.0f);
+}
+
+static void add_source(float* restrict x, float* restrict s, float dt)
 {
 	int i;
 	for (i = 0; i < SIZE; i++) x[i] += dt * s[i];
@@ -72,18 +92,18 @@ static void set_bnd(int b, float* x)
 	int i;
 	for (i = 1; i <= ESIZE; i++) {
 
-		x[IX(0, i)] = b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
-		x[IX(ESIZE + 1, i)] = b == 1 ? -x[IX(ESIZE, i)] : x[IX(ESIZE, i)];
+		x[IX(0, i)] = 0;// b == 1 ? -x[IX(1, i)] : x[IX(1, i)];
+		x[IX(ESIZE + 1, i)] = 0;// b == 1 ? -x[IX(ESIZE, i)] : x[IX(ESIZE, i)];
 		x[IX(i, 0)] = 0.f;//b == 2 ? -x[IX(i, 1)] : x[IX(i, 1)];
-		x[IX(i, ESIZE + 1)] = b == 2 ? -x[IX(i, ESIZE)] : x[IX(i, ESIZE)];
+		x[IX(i, ESIZE + 1)] = 0;//b == 2 ? -x[IX(i, ESIZE)] : x[IX(i, ESIZE)];
 	}
-	x[IX(0, 0)] = 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
-	x[IX(0, ESIZE + 1)] = 0.5f * (x[IX(1, ESIZE + 1)] + x[IX(0, ESIZE)]);
-	x[IX(ESIZE + 1, 0)] = 0.5f * (x[IX(ESIZE, 0)] + x[IX(ESIZE + 1, 1)]);
-	x[IX(ESIZE + 1, ESIZE + 1)] = 0.5f * (x[IX(ESIZE, ESIZE + 1)] + x[IX(ESIZE + 1, ESIZE)]);
+	x[IX(0, 0)] = 0;// 0.5f * (x[IX(1, 0)] + x[IX(0, 1)]);
+	x[IX(0, ESIZE + 1)] = 0;// 0.5f * (x[IX(1, ESIZE + 1)] + x[IX(0, ESIZE)]);
+	x[IX(ESIZE + 1, 0)] = 0;//0.5f * (x[IX(ESIZE, 0)] + x[IX(ESIZE + 1, 1)]);
+	x[IX(ESIZE + 1, ESIZE + 1)] = 0;// 0.5f * (x[IX(ESIZE, ESIZE + 1)] + x[IX(ESIZE + 1, ESIZE)]);
 }
 
-static void diffuse(int b, float* x, float* x0, float diff, float dt)
+static void diffuse(int b, float* restrict x, float* restrict x0, float diff, float dt)
 {
 	// Gauss-Seidel relaxation
 	int i, j, k;
@@ -100,7 +120,7 @@ static void diffuse(int b, float* x, float* x0, float diff, float dt)
 	}
 }
 
-static void advect(int b, float* d, float* d0, float* u, float* v, float dt)
+static void advect(int b, float* restrict d, float* restrict d0, float* restrict u, float* restrict v, float dt)
 {
 	int i, j, i0, j0, i1, j1;
 	float x, y, s0, t0, s1, t1, dt0;
@@ -146,7 +166,7 @@ static void advect(int b, float* d, float* d0, float* u, float* v, float dt)
 	set_bnd(b, d);
 }
 
-static void project(float* u, float* v, float* p, float* div)
+static void project(float* restrict u, float* restrict v, float* restrict p, float* restrict div)
 {
 	int i, j, k;
 	float h = 1.0f / ESIZE;
@@ -158,7 +178,7 @@ static void project(float* u, float* v, float* p, float* div)
 		}
 	}
 	set_bnd(0, div); set_bnd(0, p);
-	for (k = 0; k < 4; k++) { //20 default
+	for (k = 0; k < 2; k++) { //20 default
 		for (i = 1; i <= ESIZE; i++) {
 			for (j = 1; j <= ESIZE; j++) {
 				p[IX(i, j)] = (div[IX(i, j)] + p[IX(i - 1, j)] + p[IX(i + 1, j)] +
@@ -176,7 +196,7 @@ static void project(float* u, float* v, float* p, float* div)
 	set_bnd(1, u); set_bnd(2, v);
 }
 
-static void buoyancy(float* v, float* t, float dt)
+static void buoyancy(float* restrict v, float* restrict t, float dt)
 {
 	int i, j;
 	float a = dt * BUOY * ESIZE;
@@ -198,15 +218,14 @@ static void cooling(float* t, float dt)
 	}
 }
 
-static void dens_step(float* x, float* x0, float* u, float* v, float diff, float dt)
+static void dens_step(float* restrict x, float* restrict x0, float* restrict u, float* restrict v, float diff, float dt)
 {
 	add_source(x, x0, dt);
 	SWAP(x0, x); diffuse(0, x, x0, diff, dt);
 	SWAP(x0, x); advect(0, x, x0, u, v, dt);
 }
 
-static void vel_step(float* u, float* v, float* u0, float* v0,
-	float visc, float dt)
+static void vel_step(float* restrict u, float* restrict v, float* restrict u0, float* restrict v0, float visc, float dt)
 {
 	add_source(u, u0, dt); add_source(v, v0, dt);
 	SWAP(u0, u); diffuse(1, u, u0, visc, dt);
@@ -369,26 +388,57 @@ static void render(int xOffset, int yOffset) {
 
 static int fluid_update(lua_State* L) {
 
-
-
 	PDButtons buttonStatesDown;
 	PDButtons buttonStatesPushed;
 	PDButtons buttonStatesReleased;
 	pd->system->getButtonState(&buttonStatesDown, &buttonStatesPushed, &buttonStatesReleased);
 
 	int constArea = ESIZE / 2;
-	float constDens = 0.55f;// 0.125f * (ESIZE / 30.f);
-	float constVel = 0.45f;//0.15f * (ESIZE / 30.f);
-	for (size_t k = 0; k < 10; k+=2)
-	{
-		for (int x = k * 3.f; x < 4 + (k * 3.f); x++) {
-			for (int y = ESIZE - 10; y < ESIZE; y++) {
-				dens[IX(x, y)] += constDens;
-				v[IX(x, y)] -= constVel;
-				u[IX(x, y)] += constVel * ((k-5.f)/5.f);
-			}
+	const float constDens = 0.85f * fireStrength;// 0.125f * (ESIZE / 30.f);
+	const float constVel = 3.95f;//0.15f * (ESIZE / 30.f);
+	const int plumeNumber = 9;
+
+	int area = ESIZE / 6;
+
+
+
+	if (simState) {
+		float crankChange = pd->system->getCrankChange();
+
+		fireStrength += crankChange / 360.f;
+	}
+	else {
+		//fireStrength = 0.4f;
+		crankAngle = lerp(crankAngle, pd->system->getCrankAngle(), 0.15f);
+		float crank = crankAngle - 90;
+		crank = crank * 3.14159f / 180.f;
+
+		//sourcePosX = lerp(sourcePosX, targetPosX, 0.1f);
+		//sourcePosY = lerp(sourcePosY, targetPosY, 0.1f);
+		sourcePosX = (cosf(crank) * (ESIZE / 2.25f));
+		sourcePosY = (sinf(crank) * (ESIZE / 2.25f));
+		sourceVelX = (cosf(crank) * 0.5f);
+		sourceVelY = (sinf(crank) * 0.5f);
+	}
+
+	for (int i = ESIZE / 2 - (area / 2); i < ESIZE / 2 + (area / 2); i++) {
+		for (int j = ESIZE / 2 - (area / 2); j < ESIZE / 2 + (area / 2); j++) {
+			dens[IX(sourcePosX + i, sourcePosY + j)] += constDens;
+			u[IX(sourcePosX + i, sourcePosY + j)] -= sourceVelX * constVel;
+			v[IX(sourcePosX + i, sourcePosY + j)] -= sourceVelY * constVel;
 		}
 	}
+	//
+	//for (size_t k = 0; k <= plumeNumber; k++)
+	//{
+	//	for (int x = k * (ESIZE / plumeNumber); x < (k+1) * (ESIZE / plumeNumber)-1; x++) {
+	//		for (int y = ESIZE - 10; y < ESIZE; y++) {
+	//			dens[IX(x, y)] += constDens;
+	//			v[IX(x, y)] -= constVel;
+	//			//u[IX(x, y)] += constVel * ((k - 5.f) / 5.f);
+	//		}
+	//	}
+	//}
 	//for (int x =0; x < ESIZE; x++) {
 	//	for (int y = ESIZE - 10; y < ESIZE; y++) {
 	//		dens[IX(x, y)] += constDens;
@@ -411,8 +461,8 @@ static int fluid_update(lua_State* L) {
 	//}
 
 
-	int area = ESIZE / 4;
-	float velPower = 0.0005f;
+	//int area = ESIZE / 4;
+	float velPower = 0.9f;
 	float densPower = 0.05f;
 	float fuelPower = 6.5f;
 	if (buttonStatesDown & kButtonUp) {
@@ -471,6 +521,10 @@ static int fluid_update(lua_State* L) {
 	//pd->graphics->clear(kColorWhite);
 	uint8_t* frameBuffer = pd->graphics->getFrame();
 
+	int ingredientPosX = 200 - (iWidth / 2);
+	int ingredientPosY = 120 - (iHeight / 2);
+	pd->graphics->drawBitmap(ingredientBitmap, ingredientPosX, ingredientPosY, 0);
+
 	//memset(renderBuffer, UINT8_MAX, 52 * 240);
 	memcpy(renderBuffer, frameBuffer, 52 * 240);
 
@@ -478,45 +532,50 @@ static int fluid_update(lua_State* L) {
 
 	memcpy(frameBuffer, renderBuffer, 52 * 240);
 
+	//Apply collision between the fluid and the ingredient bitmap. Check for overlapping pixels on the bitmap and the render buffer
+	for (int i = 0; i < iWidth; i++) {
+		for (int j = 0; j < iHeight; j++) {
+			//int x = RENDER_TO_SIM(i + ingredientPosX, renderSizeX);
+			//int y = RENDER_TO_SIMY(j + ingredientPosY, renderSizeY);
+
+			if (iMask[(j * iRowBytes) + (i / 8)] & ~frameBuffer[((j + ingredientPosY) * 52) + ((i + ingredientPosX) / 8)]) {
+				int x = RENDER_TO_SIM(i + ingredientPosX, renderSizeX);
+				int y = RENDER_TO_SIMY(j + ingredientPosY, renderSizeY);
+				//dens[IX(x, y)] = 0.f;
+				//if (u[IX(x, y)] > v[IX(x, y)]) {
+				//	v[IX(x, y)] = u[IX(x, y)];
+				//	u[IX(x, y)] = 0.f;
+				//}
+				//else {
+				//	u[IX(x, y)] = v[IX(x, y)];
+				//	v[IX(x, y)] = 0.f;
+				//}
+				float gorp = u[IX(x, y)];
+				float glorp = v[IX(x, y)];
+				float val = abs(u[IX(x, y)]) - abs(v[IX(x, y)]);
+				if (val > 1.5f) {
+					u[IX(x, y)] = 0;//-v[IX(x, y)];
+					v[IX(x, y)] = 0;// -u[IX(x, y)];
+					
+				}
+				else {
+					u[IX(x, y)] = -u[IX(x, y)];// / 1.1f;
+					v[IX(x, y)] = -v[IX(x, y)];// / 1.1f;
+
+				}
+				//frameBuffer[(j * 52) + (i / 8)] = 0;
+			}
+
+			//dens[IX(x, y)] = 0.f;
+		}
+	}
+
+
 
 	pd->sprite->addDirtyRect(LCDMakeRect(xOffset, yOffset, renderSizeX, renderSizeY));
-
-	//for (i = yOffset; i < renderSizeY + yOffset; i++) {
-	//	for (j = xOffset; j < renderSizeX + xOffset; j++) {
-	//		// Map the coordinates to the original density field with interpolation
-	//		float x = (float)(j - xOffset) * (ESIZE - 1) / (renderSizeX - 1) + 1;
-	//		float y = (float)(i - yOffset) * (ESIZE - 1) / (renderSizeY - 1) + 1;
-	//		float density_value = 0;
-	//		if (interp) {
-	//			density_value = bilinear_interpolate(dens, x, y);
-	//		}
-	//		else {
-	//			density_value = dens[IX((int)x, (int)y)];
-	//		}
-	//		//float grad  = compute_gradient(dens, ESIZE + 2, ESIZE + 2, (int)x, (int)y);
-
-	//		// Determine the corresponding dither matrix value
-	//		float dither_value = dither_matrix8x8[i % 8][j % 8];
-
-	//		//if (density_value > dither_value + 0.25f) {
-	//			//setPixelRow(frameBuffer, j, shift?i:i+1, ~dither_pattern_lookup[3-(int)(density_value/10.f)][(int)((grad+1) * 4.5f)]);
-	//		//}
-
-
-	//		// Apply the dither and print the pixel
-	//		if (density_value > 1.4f) {// && dens[IX((int)x+1, (int)y)] > 1.4f && dens[IX((int)x - 1, (int)y)] > 1.4f) {
-	//			setPixelRow(frameBuffer, j, i, 0b00000000);
-	//			j += 7 - (j % 8);
-	//		}
-	//		else if (density_value > dither_value + 0.25f) {
-	//			setPixel(frameBuffer, j, i, 0);
-	//			//pd->graphics->setPixel(j, i, kColorBlack);
-	//		}
-	//	}
-	//}
 	pd->graphics->markUpdatedRows(0, 200);
 	//pd->graphics->setScreenClipRect(0, 0, 400, 240);
-	pd->system->drawFPS(0, 0);
+	//pd->system->drawFPS(0, 0);
 	//pd->graphics->popContext();
 
 	memset(u_prev, 0, sizeof(float) * SIZE);
@@ -535,6 +594,9 @@ static int fluid_initialise(lua_State* L) {
 	dens_fuel = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
 	temp = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
 	renderBuffer = (uint8_t*)pd->system->realloc(NULL, 52 * 240);
+	ingredientBitmap = pd->lua->getBitmap(1);
+
+	pd->graphics->getBitmapData(ingredientBitmap, &iWidth, &iHeight, &iRowBytes, &iMask, &iData);
 
 	memset(u, 0, sizeof(float) * SIZE);
 	memset(v, 0, sizeof(float) * SIZE);
@@ -609,7 +671,8 @@ static int fluid_reinitialise(lua_State* L) {
 
 static int fluid_addSource(lua_State* L) {
 
-	float amount = pd->lua->getArgFloat(1) * 1.f;
+	const float amountScale = 0.2f;
+	float amount = pd->lua->getArgFloat(1) * amountScale;
 	int x = pd->lua->getArgFloat(2) * ESIZE;
 	int y = ESIZE - (pd->lua->getArgFloat(3) * ESIZE / 1.f);
 	//dens_fuel[IX(x, y)] += amount;
@@ -618,12 +681,26 @@ static int fluid_addSource(lua_State* L) {
 	{
 		for (size_t j = 0; j < SOURCE_SQUARE_SIZE; j++)
 		{
-		
+
 			//v[IX(i + x, j + y)] += amount-0.5f;
-			u[IX(i + x, j + y)] += amount-0.5f;
+			u[IX(i + x, j + y)] += amount - (amountScale / 2.f);
 		}
 	}
 
+	return 0;
+}
+
+static int fluid_flipState(lua_State* L) {
+
+	simState = ~simState;
+
+	return 0;
+}
+
+static int fluid_setTargetPosition(lua_State* L) {
+
+	//targetPosX = pd->lua->getArgFloat(1);
+	//targetPosY = pd->lua->getArgFloat(2);
 	return 0;
 }
 

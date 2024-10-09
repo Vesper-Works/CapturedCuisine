@@ -97,7 +97,9 @@ function IngredientHandler.getSpriteForIngredient(ingredient)
     if playdate.file.exists("assets/images/ingredients/" .. ingredient.name) then
         return playdate.graphics.image.new("assets/images/ingredients/" .. ingredient.name)
     end
-    return playdate.graphics.image.new("assets/images/default")
+    local image = playdate.graphics.image.new("assets/images/default")
+    image:setMaskImage(playdate.graphics.image.new("assets/images/default_mask"))
+    return image
 end
 
 function IngredientHandler.getSpriteForIngredientByName(ingredient)

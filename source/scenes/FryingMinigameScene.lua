@@ -9,24 +9,13 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local fluidSettings = { 30, 0, 200, 200 }
 local backgroundImage = gfx.image.new("assets/images/FryingBackground")
+local targetPosition = { x = 0, y = 0 }
+local sprite 
 
-local fluidSpawningSequences = {
-    { 
-        Sequence.new():from(1):to(0, 3, "linear"):mirror():start(), --Strength
-        Sequence.new():from(0):to(1, 7, "linear"):mirror():start(),--X
-        Sequence.new():from(0):to(1, 5, "linear"):mirror():start() --Y
-    },
-    { 
-        Sequence.new():from(1):to(0, 5, "linear"):mirror():start(), --Strength
-        Sequence.new():from(0):to(1, 8, "linear"):mirror():start(),--X
-        Sequence.new():from(0):to(1, 4, "linear"):mirror():start() --Y
-    }
-     
-    
-
-
-}
 FryingMinigameScene.inputHandler = {
+    AButtonDown = function() 
+        fluid.flipState()
+    end
 }
 
 function FryingMinigameScene:setValues()
@@ -47,6 +36,7 @@ function FryingMinigameScene:drawBackground(__x, __y, __width, __height)
 end
 
 function FryingMinigameScene:init()
+    sprite = IngredientHandler.getSpriteForIngredient(IngredientHandler.getRandomIngredient())
     gfx.sprite.setAlwaysRedraw(false)
     FryingMinigameScene.super.init(self) --calls parent constructor
     --pd.display.setRefreshRate(500)
@@ -88,21 +78,19 @@ function FryingMinigameScene:init()
         end
     end)
 
-    fluid.initialise()
+    
+    fluid.initialise(sprite)
 end
 
 function FryingMinigameScene:update()
-    
-    
-    for index, value in ipairs(fluidSpawningSequences) do
-        local temp,temp2,temp3 = value[1]:get(), value[2]:get(), value[3]:get()
-        fluid.addSource(temp, value[2]:get(), value[3]:get())
-    end
-    
+    local crank = pd.getCrankPosition()		
+    crank -= 90
+    crank = crank * math.pi / 180
+    local sourcePosX = (math.cos(crank) * (30 / 2.25));
+	local sourcePosY = (math.sin(crank) * (30 / 2.25));
+    fluid.setTargetPosition(sourcePosX, sourcePosY)
     fluid.update()
     FryingMinigameScene.super.update(self)
-
-   
 end
 
 function FryingMinigameScene:exit()

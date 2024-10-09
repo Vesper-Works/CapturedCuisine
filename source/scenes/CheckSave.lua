@@ -27,10 +27,10 @@ function scene:update() -- this code should only need to run if a saved game is 
         if pd.buttonIsPressed(pd.kButtonB) then
             scene.exit(self)
         elseif(pd.buttonIsPressed(pd.kButtonA)) then
-            scene.continue(self)
+            scene.loadGame(self)
         end
     else
-        scene.continue(self)
+        scene.loadGame(self)
     end
 end
 function scene:loadGame() 

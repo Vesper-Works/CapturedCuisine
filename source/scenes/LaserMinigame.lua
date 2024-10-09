@@ -289,7 +289,7 @@ function LaserMinigame:update()
                 splitSprite[7]:translate(0, splitSprite[6])
             end
         end
-        gfx.setClipRect
+        --gfx.setClipRect()
         splitSprite[1]:draw(spriteX, spriteY)
 
         gfx.pushContext()

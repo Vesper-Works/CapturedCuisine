@@ -6,7 +6,7 @@ class("CinematicScene").extends(NobleScene)
 local scene = CinematicScene
 local pd = playdate
 local gfx = pd.graphics
-local comicData = {
+local comicData = { --create a number of sequences in the sequences folder, then add them in order here. Use the same format as in s01.
     s01
 }
 function scene:setValues()

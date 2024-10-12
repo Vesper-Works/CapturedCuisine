@@ -15,6 +15,9 @@
 //#include "intrin.h"
 //#endif
 
+// ^^ above stuff is for playing around with intrinsics for further optimisation.
+// The Playdate can only do 32-bit in parallet, so 4 8 bit values at a time, which is not very useful unless we implement the density field as uint_8s.
+
 #define N 30  // Grid size
 #define STEPS 1.f  // Number of simulation steps
 #define DT 0.02f  // Time step
@@ -23,9 +26,11 @@
 #define COOL 0.001f   // Cooling rate
 #define BURN 0.1f  // Burning rate
 #define BUOY 0.5f  // Buoyancy
-#define SOURCE_SQUARE_SIZE 8  // Buoyancy
+#define SOURCE_SQUARE_SIZE 8 
+// Constants for the fluid simulation, some unused.
 
-static int ESIZE = N;
+static int ESIZE = N; // Grid size, not using just N everywhere as lua can change its value for testing.
+
 // Utility macros
 #define IX(i, j) ((i) + (ESIZE + 2) * (j))
 #define SWAP(x0,x) {float* tmp=x0;x0=x;x=tmp;}
@@ -37,10 +42,11 @@ static int ESIZE = N;
 
 //http://graphics.cs.cmu.edu/nsp/course/15-464/Spring11/papers/StamFluidforGames.pdf
 
-static int SIZE = (N + 2) * (N + 2);  // Grid size including boundary
+
+//So some of these may be unused, that's very likely!
+static int SIZE = (N + 2) * (N + 2);  // Grid size total including boundary
 static float* u, * v, * u_prev, * v_prev;
 static float* dens, * dens_fuel;
-static float* temp;
 uint8_t* renderBuffer;
 static int interp = 0;
 static int simState = 0; //0 = rotating, ~0 = flame intensity control
@@ -62,7 +68,7 @@ static int fluid_addSource(lua_State* L);
 static int fluid_flipState(lua_State* L);
 static int fluid_setTargetPosition(lua_State* L);
 
-
+//Function table which maps the lua functions to the C functions. NULL indicates the end of the table.
 const lua_reg fluid[] =
 {
 	{ "update",			fluid_update },
@@ -74,7 +80,7 @@ const lua_reg fluid[] =
 	{ NULL,				NULL }
 };
 
-//lerp
+//Linear interpolation function that wraps around the 360 degree mark.
 static float lerp(float a, float b, float t) {
 	float diff = fmodf(b - a, 360.0f);
 	float wrappedDiff = fmodf((diff + 540.0f), 360.0f) - 180.0f;
@@ -89,6 +95,8 @@ static void add_source(float* restrict x, float* restrict s, float dt)
 
 static void set_bnd(int b, float* x)
 {
+	//Uncomment the values to have walls that reflect the fluid around the edge of the grid.
+	//Right now it just has the fluid disappear at the edges.
 	int i;
 	for (i = 1; i <= ESIZE; i++) {
 
@@ -196,6 +204,7 @@ static void project(float* restrict u, float* restrict v, float* restrict p, flo
 	set_bnd(1, u); set_bnd(2, v);
 }
 
+//Relic of proper flame simulation
 static void buoyancy(float* restrict v, float* restrict t, float dt)
 {
 	int i, j;
@@ -207,6 +216,7 @@ static void buoyancy(float* restrict v, float* restrict t, float dt)
 	}
 }
 
+//Relic of proper flame simulation
 static void cooling(float* t, float dt)
 {
 	int i, j;
@@ -237,7 +247,7 @@ static void vel_step(float* restrict u, float* restrict v, float* restrict u0, f
 }
 
 
-
+//All this noise crap is for filling up different arrays with test values.
 #pragma region Noise
 
 //from https://stackoverflow.com/questions/16569660/2d-perlin-noise-in-c
@@ -325,7 +335,7 @@ static float dither_matrix8x8[8][8] = {
 	{0.19f, 0.69f, 0.06f, 0.56f, 0.25f, 0.75f, 0.13f, 0.63f},
 	{0.94f, 0.44f, 0.81f, 0.31f, 0.75f, 0.25f, 0.88f, 0.38f} };
 
-
+//This is here from ages past, maybe it could help somewhere in the future, but I highly doubt it.
 static float bilinear_interpolate(float* density, float x, float y) {
 	int x0 = (int)x;
 	int x1 = x0 + 1;
@@ -358,7 +368,7 @@ static void render(int xOffset, int yOffset) {
 			float yRatio = (float)(ESIZE) / (renderSizeY);
 			int x = ((i - xOffset) * xRatio) + 1;
 			int y = ((j - yOffset) * yRatio) + 1;
-			int x8 = ((i + 8 - xOffset) * xRatio) + 1;
+			int x8 = ((i + 8 - xOffset) * xRatio) + 1; //Pre-calculate the next x value one byte ahead
 
 			if (dens[IX(x, y)] > 1.3f && dens[IX(x8, y)] > 1.3f) {
 
@@ -393,15 +403,8 @@ static int fluid_update(lua_State* L) {
 	PDButtons buttonStatesReleased;
 	pd->system->getButtonState(&buttonStatesDown, &buttonStatesPushed, &buttonStatesReleased);
 
-	int constArea = ESIZE / 2;
-	const float constDens = 0.85f * fireStrength;// 0.125f * (ESIZE / 30.f);
-	const float constVel = 3.95f;//0.15f * (ESIZE / 30.f);
-	const int plumeNumber = 9;
-
-	int area = ESIZE / 6;
-
-
-
+	//If we're in simulation mode, update the fire strength based on the crank angle
+	//Else, move the source position based on the crank angle
 	if (simState) {
 		float crankChange = pd->system->getCrankChange();
 
@@ -409,17 +412,18 @@ static int fluid_update(lua_State* L) {
 	}
 	else {
 		//fireStrength = 0.4f;
-		crankAngle = lerp(crankAngle, pd->system->getCrankAngle(), 0.15f);
+		crankAngle = lerp(crankAngle, pd->system->getCrankAngle(), 0.15f); //Lerp to smooth movement.
 		float crank = crankAngle - 90;
 		crank = crank * 3.14159f / 180.f;
-
-		//sourcePosX = lerp(sourcePosX, targetPosX, 0.1f);
-		//sourcePosY = lerp(sourcePosY, targetPosY, 0.1f);
 		sourcePosX = (cosf(crank) * (ESIZE / 2.25f));
 		sourcePosY = (sinf(crank) * (ESIZE / 2.25f));
 		sourceVelX = (cosf(crank) * 0.5f);
 		sourceVelY = (sinf(crank) * 0.5f);
 	}
+	const float constDens = 0.85f * fireStrength;// 0.125f * (ESIZE / 30.f);
+	const float constVel = 3.95f;//0.15f * (ESIZE / 30.f);
+
+	int area = ESIZE / 6;
 
 	for (int i = ESIZE / 2 - (area / 2); i < ESIZE / 2 + (area / 2); i++) {
 		for (int j = ESIZE / 2 - (area / 2); j < ESIZE / 2 + (area / 2); j++) {
@@ -428,38 +432,6 @@ static int fluid_update(lua_State* L) {
 			v[IX(sourcePosX + i, sourcePosY + j)] -= sourceVelY * constVel;
 		}
 	}
-	//
-	//for (size_t k = 0; k <= plumeNumber; k++)
-	//{
-	//	for (int x = k * (ESIZE / plumeNumber); x < (k+1) * (ESIZE / plumeNumber)-1; x++) {
-	//		for (int y = ESIZE - 10; y < ESIZE; y++) {
-	//			dens[IX(x, y)] += constDens;
-	//			v[IX(x, y)] -= constVel;
-	//			//u[IX(x, y)] += constVel * ((k - 5.f) / 5.f);
-	//		}
-	//	}
-	//}
-	//for (int x =0; x < ESIZE; x++) {
-	//	for (int y = ESIZE - 10; y < ESIZE; y++) {
-	//		dens[IX(x, y)] += constDens;
-	//		v[IX(x, y)] -= constVel;
-	//	}
-	//}
-	//for (int x = ESIZE / 2 + (constArea / 4); x < ESIZE / 2 + constArea; x++) {
-	//	for (int y = ESIZE - 10; y < ESIZE; y++) {
-	//		dens[IX(x, y)] += constDens;
-	//		v[IX(x, y)] -= constVel;
-
-	//	}
-	//}
-	//for (int x = ESIZE / 2 - (constArea / 8); x < ESIZE / 2 + (constArea / 8); x++) {
-	//	for (int y = ESIZE - 10; y < ESIZE; y++) {
-	//		dens[IX(x, y)] += constDens;
-	//		v[IX(x, y)] -= constVel;
-
-	//	}
-	//}
-
 
 	//int area = ESIZE / 4;
 	float velPower = 0.9f;
@@ -526,7 +498,7 @@ static int fluid_update(lua_State* L) {
 	pd->graphics->drawBitmap(ingredientBitmap, ingredientPosX, ingredientPosY, 0);
 
 	//memset(renderBuffer, UINT8_MAX, 52 * 240);
-	memcpy(renderBuffer, frameBuffer, 52 * 240);
+	memcpy(renderBuffer, frameBuffer, 52 * 240); //I'm assuming I had a reason to use my own render buffer instead of the frame buffer, but I can't remember why.
 
 	render(xOffset, yOffset);
 
@@ -535,45 +507,22 @@ static int fluid_update(lua_State* L) {
 	//Apply collision between the fluid and the ingredient bitmap. Check for overlapping pixels on the bitmap and the render buffer
 	for (int i = 0; i < iWidth; i++) {
 		for (int j = 0; j < iHeight; j++) {
-			//int x = RENDER_TO_SIM(i + ingredientPosX, renderSizeX);
-			//int y = RENDER_TO_SIMY(j + ingredientPosY, renderSizeY);
+			int x = RENDER_TO_SIM(i + ingredientPosX, renderSizeX);
+			int y = RENDER_TO_SIMY(j + ingredientPosY, renderSizeY);
 
+			//If the cell is taken on the mask, set velocity to 0
 			if (iMask[(j * iRowBytes) + (i / 8)] & ~frameBuffer[((j + ingredientPosY) * 52) + ((i + ingredientPosX) / 8)]) {
-				int x = RENDER_TO_SIM(i + ingredientPosX, renderSizeX);
-				int y = RENDER_TO_SIMY(j + ingredientPosY, renderSizeY);
-				//dens[IX(x, y)] = 0.f;
-				//if (u[IX(x, y)] > v[IX(x, y)]) {
-				//	v[IX(x, y)] = u[IX(x, y)];
-				//	u[IX(x, y)] = 0.f;
-				//}
-				//else {
-				//	u[IX(x, y)] = v[IX(x, y)];
-				//	v[IX(x, y)] = 0.f;
-				//}
-				float gorp = u[IX(x, y)];
-				float glorp = v[IX(x, y)];
-				float val = abs(u[IX(x, y)]) - abs(v[IX(x, y)]);
-				if (val > 1.5f) {
-					u[IX(x, y)] = 0;//-v[IX(x, y)];
-					v[IX(x, y)] = 0;// -u[IX(x, y)];
-					
-				}
-				else {
-					u[IX(x, y)] = -u[IX(x, y)];// / 1.1f;
-					v[IX(x, y)] = -v[IX(x, y)];// / 1.1f;
 
-				}
-				//frameBuffer[(j * 52) + (i / 8)] = 0;
+				u[IX(x+1, y+1)] = 0.f;
+				v[IX(x+1, y+1)] = 0.f;
 			}
-
-			//dens[IX(x, y)] = 0.f;
 		}
 	}
 
 
 
 	pd->sprite->addDirtyRect(LCDMakeRect(xOffset, yOffset, renderSizeX, renderSizeY));
-	pd->graphics->markUpdatedRows(0, 200);
+	pd->graphics->markUpdatedRows(0, 200); //You could probably calculate what rows need updating, but for now this is fine.
 	//pd->graphics->setScreenClipRect(0, 0, 400, 240);
 	//pd->system->drawFPS(0, 0);
 	//pd->graphics->popContext();
@@ -592,7 +541,6 @@ static int fluid_initialise(lua_State* L) {
 	v_prev = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
 	dens = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
 	dens_fuel = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
-	temp = (float*)pd->system->realloc(NULL, sizeof(float) * SIZE);
 	renderBuffer = (uint8_t*)pd->system->realloc(NULL, 52 * 240);
 	ingredientBitmap = pd->lua->getBitmap(1);
 
@@ -604,7 +552,6 @@ static int fluid_initialise(lua_State* L) {
 	memset(v_prev, 0, sizeof(float) * SIZE);
 	memset(dens, 0, sizeof(float) * SIZE);
 	memset(dens_fuel, 0, sizeof(float) * SIZE);
-	memset(temp, 0, sizeof(float) * SIZE);
 
 	return 0;
 }
@@ -619,7 +566,6 @@ static int fluid_reinitialise(lua_State* L) {
 	memset(v_prev, 0, sizeof(float) * SIZE);
 	memset(dens, 0, sizeof(float) * SIZE);
 	memset(dens_fuel, 0, sizeof(float) * SIZE);
-	memset(temp, 0, sizeof(float) * SIZE);
 
 	//Log all args coming in using getArgCount and getArgType
 	pd->system->logToConsole("Args: %i", pd->lua->getArgCount());
@@ -648,7 +594,6 @@ static int fluid_reinitialise(lua_State* L) {
 		v_prev = pd->system->realloc(v_prev, sizeof(float) * SIZE);
 		dens = pd->system->realloc(dens, sizeof(float) * SIZE);
 		dens_fuel = pd->system->realloc(dens_fuel, sizeof(float) * SIZE);
-		temp = pd->system->realloc(temp, sizeof(float) * SIZE);
 
 		memset(u, 0, sizeof(float) * SIZE);
 		memset(v, 0, sizeof(float) * SIZE);
@@ -656,12 +601,11 @@ static int fluid_reinitialise(lua_State* L) {
 		memset(v_prev, 0, sizeof(float) * SIZE);
 		memset(dens, 0, sizeof(float) * SIZE);
 		memset(dens_fuel, 0, sizeof(float) * SIZE);
-		memset(temp, 0, sizeof(float) * SIZE);
 	}
 
 
 	//nullptr check
-	if (u == NULL || v == NULL || u_prev == NULL || v_prev == NULL || dens == NULL || dens_fuel == NULL || temp == NULL) {
+	if (u == NULL || v == NULL || u_prev == NULL || v_prev == NULL || dens == NULL || dens_fuel == NULL ) {
 		pd->system->error("Failed to reallocate memory");
 		pd->system->logToConsole("bleh");
 		return 0;

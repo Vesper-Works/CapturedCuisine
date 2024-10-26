@@ -381,7 +381,7 @@ function LaserMinigame:update()
 end
 
 function LaserMinigame:exit()
-    Noble.transition(ExampleScene, nil, Noble.Transition.DipToBlack) --move to the main scene
+    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack) --move to the main scene
 end
 
 --flesh this out with the actual opening cinematic later

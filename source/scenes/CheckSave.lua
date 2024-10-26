@@ -35,10 +35,8 @@ function scene:update() -- this code should only need to run if a saved game is 
 end
 function scene:loadGame() 
     Noble.Text.draw("Loading game...", 80, 120)
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM) --SetFont might not be needed
     Noble.transition(CinematicScene, nil, Noble.Transition.CrossDissolve)
 end
 function scene:exit() 
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

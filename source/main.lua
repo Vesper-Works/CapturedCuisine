@@ -20,7 +20,11 @@ import 'scenes/SplashScreenScene'
 import 'scenes/OptionsScene'
 import 'scenes/CutScene'
 import "CoreLibs/timer"
-
+import 'scenes/ResturauntScene'
+import 'scenes/OrdersScene'
+import 'scenes/PickIngredientScene'
+import 'scenes/PlateScene'
+import 'scenes/AlienEatScene'
 
 local pd = playdate
 local gfx = pd.graphics
@@ -46,9 +50,9 @@ pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
 function loadMainMenu()
-	--SplashScreenScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating 
+	SplashScreenScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating 
 	--Luke has the functionality of OpeningScene and Update in SplashScreenScene, check what this is doing
-	OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
+	--OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating
 end
 function update() 
 	gfx.sprite.update()

@@ -139,7 +139,7 @@ end
 function scene:exit()
     self.gameOver = true
 
-    Noble.transition(MainMenu, nil, Noble.Transition.DipToBlack)
+    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
 end
 
 function ExitAfterDelay(sprite)

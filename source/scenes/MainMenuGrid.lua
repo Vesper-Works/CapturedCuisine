@@ -8,8 +8,8 @@ local scene = MainMenuGrid
 local pd = playdate
 local gfx = pd.graphics
 local gridview = pd.ui.gridview.new(0, 32) --used for list view
-local allScenes = {"Continue", "Start Game", "Endless", "Options", "SweetTalking", "Crank"} --not sure why I need an empty item at the end
-local loadScenes = {LoadSave, CheckSave, CheckSave2, BlankScene, SweetTalking, CrankScene}
+local allScenes = {"Continue", "Start Game", "Endless", "Options"} --not sure why I need an empty item at the end
+local loadScenes = {LoadSave, CheckSave, CheckSave2, BlankScene}
 gridview:setNumberOfRows(#allScenes) --set rows to number of items in list
 gridview:setCellPadding(2, 2, 2, 2) --creates a small border for each cell
 local gridviewSprite = gfx.sprite.new() --sprite created to prevent smearing

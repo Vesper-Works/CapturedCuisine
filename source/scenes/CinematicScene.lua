@@ -25,11 +25,11 @@ function scene:update()
     Panels.update() --needs to be called
     if pd.buttonIsPressed(pd.kButtonB) then --to skip cutscene
          --cutscene should stop and go to next scene
-        scene.exit(self)
+        self:exit()
     end
 end
 function scene:exit() 
     Panels.haltCutscene()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack)
+    Noble.transition(ResturauntScene, nil, Noble.Transition.DipToBlack)
 end

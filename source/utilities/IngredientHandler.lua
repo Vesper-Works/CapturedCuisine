@@ -69,7 +69,8 @@ end
 function IngredientHandler.getRandomIngredient()
     return IngredientHandler.ingredients[math.random(1, #IngredientHandler.ingredients)]
 end
-
+function IngredientHandler.getIngredientFromIndex(index) return IngredientHandler.ingredients[index] 
+end
 function IngredientHandler.createRandomIngredientInstance()
     return IngredientHandler.createIngredientInstanceByName(IngredientHandler.getRandomIngredient().name)
 end

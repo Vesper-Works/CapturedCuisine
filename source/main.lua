@@ -50,6 +50,7 @@ pd.timer.performAfterDelay(mainMenuLoad, function ()
 	loadMainMenu() --second argument is a lambda where multiple functions can be passed in sequence
 end)
 function loadMainMenu()
+	IngredientHandler.loadIngredients() --should load the ingredients themselves
 	SplashScreenScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating 
 	--Luke has the functionality of OpeningScene and Update in SplashScreenScene, check what this is doing
 	--OpeningScene.exit() --running this seems to create the main.pdx folder which is unneeded, bear this in mind when creating

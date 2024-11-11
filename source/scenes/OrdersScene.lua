@@ -71,11 +71,6 @@ function scene:update()
         self:removeAllText()
         self:drawAllText(allOrders[self.index]:returnFirstSentence(), allOrders[self.index]:returnSecondSentence(), allOrders[self.index]:returnThirdSentence())
     end
-    --[[
-    Noble.Text.draw(allOrders[self.index]:returnFirstSentence(), 0, 0, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) --it's possible this works but we may need a font asset
-    Noble.Text.draw(allOrders[self.index]:returnSecondSentence(), 0, 50, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont()) 
-    Noble.Text.draw(allOrders[self.index]:returnThirdSentence(), 0, 100, Noble.Text.ALIGN_LEFT, false, Noble.Text.getCurrentFont())
-    --]]
     self.spriteImage = gfx.image.new(allOrders[self.index]:returnPath())
     self.sprite:setImage(self.spriteImage)
     if pd.buttonIsPressed(pd.kButtonB) then
@@ -86,5 +81,5 @@ function scene:exit()
     self.sprite:remove()
     self:removeAllText()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack, allOrders[self.index]:returnAdjectives())
 end

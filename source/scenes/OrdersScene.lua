@@ -81,5 +81,6 @@ function scene:exit()
     self.sprite:remove()
     self:removeAllText()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack, allOrders[self.index]:returnAdjectives())
+    Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence()})
+    
 end

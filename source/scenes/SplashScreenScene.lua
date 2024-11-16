@@ -23,6 +23,19 @@ function scene:update()
     end
 end
 function scene:exit()
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+    --[[
+    Noble.new(PickIngredientScene,
+        1.5,
+        Noble.Transition.MetroNexus,
+        nil,
+        nil,
+        {
+        allAttributes = "test1",
+        firstSentence = "test2",
+        secondSentence = "test3",
+        thirdSentence = "test4"
+        }
+    )
+    --]]
     Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

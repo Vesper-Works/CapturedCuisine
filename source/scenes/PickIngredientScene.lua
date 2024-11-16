@@ -14,56 +14,112 @@ function scene:setValues()
     self.offset = 0
     self.index = 1
     self.ingredientSelected = false --this will be required to switch between two menus, the ingredient selection menu and the minigame selection menu
+    self.currentIngredient = nil
+    self.crankTurned = false
+    self.offset = 0
 end
 
-function scene:init(allAttributes)
-    scene.super.init(self) --calls parent constructor
-    self.attributes = allAttributes
+function scene:init(__sceneProperties)
+    scene.super.init(self, __sceneProperties) --calls parent constructor
+    self.attributes = __sceneProperties.allAttributes
     self:setValues()
     self:drawIngredient(self.index) --pass through first ingredient
+    self.firstSentence = __sceneProperties.firstSentence
+    self.secondSentence = __sceneProperties.secondSentence
+    self.thirdSentence = __sceneProperties.thirdSentence
+    print("New Scene")
+    print(__sceneProperties)
 end
 function scene:drawIngredient(i)
     local ingredientText = IngredientHandler.getIngredientFromIndex(i).name --this can be extended with string concatanation later
     self.ingredientTextSprite = gfx.sprite.spriteWithText(ingredientText, 400, 200)
     self.ingredientTextSprite:moveTo(200, 100)
     self.ingredientTextSprite:add()
+    self.offset = 0
 end
 function scene:removeAllText()
     self.ingredientTextSprite:remove()
+end
+function scene:drawActions()
+    local text = "Choose Cooking Method \n Left for Sweet Talking \n Up for Firing \n Down for Laser Cutting \n Right for Aging"
+    self.ingredientTextSprite = gfx.sprite.spriteWithText(text, 400, 200)
+    self.ingredientTextSprite:moveTo(200, 100)
+    self.ingredientTextSprite:add()
+    self.offset = 0
+end
+function scene:drawAllText(firstText, secondText, thirdText)
+    local allText = firstText .. '\n' .. secondText .. '\n' .. thirdText
+    self.ingredientTextSprite = gfx.sprite.spriteWithText(allText, 400, 200)
+    self.ingredientTextSprite:moveTo(200, 100)
+    self.ingredientTextSprite:add()
+    self.offset = 0
 end
 function scene:update()
     scene.super.update(self)
     local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
     self.offset = self.offset + pd.getCrankChange()
-    if self.offset > 30 then
+    if self.crankTurned == false and self.offset > 30 then
+        self.crankTurned = true
         self.offset = 0
-        self.index = self.index + 1
-        if self.index > 10 then
-            self.index = 1
-        end
         self:removeAllText()
-        self:drawIngredient(self.index)
-    elseif self.offset < -30 then
+        self:drawAllText(self.firstSentence, self.secondSentence, self.thirdSentence)
+    elseif self.crankTurned == true and self.offset < -30 then
+        self.crankTurned = false
         self.offset = 0
-        self.index = self.index - 1
-        if self.index < 1 then
-            self.index = 10
-        end
         self:removeAllText()
-        self:drawIngredient(self.index)
-    end --seperate if else statement will be required for accessibility
-    if pd.buttonIsPressed(pd.kButtonB) then
-        scene.exit(self)
-    elseif pd.buttonIsPressed(pd.kButtonDown) then
-        scene.chooseLaser(scene)
-    elseif pd.buttonIsPressed(pd.kButtonLeft) then
-        scene.chooseSweet(scene)
-    elseif pd.buttonIsPressed(pd.kButtonRight) then
-        scene.chooseAge(scene)
-    elseif pd.buttonIsPressed(pd.kButtonUp) then
-        scene.chooseCrank(scene)
-    elseif pd.buttonIsPressed(pd.kButtonA) then
-        scene.choosePlate(scene)
+        if self.ingredientSelected == true then
+            self:drawActions()
+        elseif self.ingredientSelected == false then
+            self:drawIngredient(self.index)
+        end
+    end
+    if self.ingredientSelected == false and self.crankTurned == false then
+        if pd.buttonJustPressed(pd.kButtonLeft) then
+            --self.offset = 0
+            self.index = self.index + 1
+            if self.index > 10 then
+                self.index = 1
+            end
+            self:removeAllText()
+            self:drawIngredient(self.index)
+        elseif pd.buttonJustPressed(pd.kButtonRight) then
+            --self.offset = 0
+            self.index = self.index - 1
+            if self.index < 1 then
+                self.index = 10
+            end
+            self:removeAllText()
+            self:drawIngredient(self.index)
+        end --seperate if else statement will be required for accessibility
+        if pd.buttonJustPressed(pd.kButtonA) then
+            self.ingredientSelected = true
+            self.currentIngredient = IngredientHandler.getIngredientFromIndex(self.index)
+            self:removeAllText()
+            self:drawActions()
+            return
+        end
+        if pd.buttonJustPressed(pd.kButtonB) then
+            scene.exit(self)
+        end
+    end
+    if self.ingredientSelected == true and self.crankTurned == false then
+        if pd.buttonJustPressed(pd.kButtonB) then
+            self.ingredientSelected = false
+            self.currentIngredient = nil
+            self:removeAllText()
+            self:drawIngredient(self.index)
+            return
+        elseif pd.buttonJustPressed(pd.kButtonDown) then
+            scene.chooseLaser(scene)
+        elseif pd.buttonJustPressed(pd.kButtonLeft) then
+            scene.chooseSweet(scene)
+        elseif pd.buttonJustPressed(pd.kButtonRight) then
+            scene.chooseAge(scene)
+        elseif pd.buttonJustPressed(pd.kButtonUp) then
+            scene.chooseCrank(scene)
+        elseif pd.buttonJustPressed(pd.kButtonA) then
+            scene.choosePlate(scene)
+        end
     end
 end
 function scene:exit()

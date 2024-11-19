@@ -119,6 +119,7 @@ function scene:update()
             scene.chooseCrank(scene)
         elseif pd.buttonJustPressed(pd.kButtonA) then
             scene.choosePlate(scene)
+            --when one of these minigames is picked, save the game
         end
     end
 end

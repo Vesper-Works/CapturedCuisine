@@ -20,6 +20,7 @@ function scene:start()
 end
 function scene:update() -- this code should only need to run if a saved game is found, adapt later
     if gameSaved == true then
+        --maybe just go straight to scene:exit if there is no saved game
         scene.super.update(self)
         Noble.Text.draw("Are you sure you want to start a new game?", 200, 100, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_LARGE)
         Noble.Text.draw("This will overwrite your current progress!", 200, 120, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_LARGE)

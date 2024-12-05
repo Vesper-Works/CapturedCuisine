@@ -72,7 +72,7 @@ function scene:processDialogue(dialogue)
     end
     if not dialogue["branch"] then
         print("No further branches available or branch data is missing.")
-        pd.timer.performAfterDelay(3000, function () scene:exit()  end)
+        pd.timer.performAfterDelay(3000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
         interact = false
         return
     end
@@ -91,7 +91,6 @@ function scene:processDialogue(dialogue)
 end
 function scene:exit() 
     pd.graphics.setFont(Noble.Text.FONT_MEDIUM)
-    print(self.reputation)
+    print("Scene exited")
     --table.insert(newIngredient["methodScores"], { "SweetTalking", 0.56 })
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
 end

@@ -8,7 +8,7 @@ AgingScene = {}
 class("AgingScene").extends(NobleScene)
 local scene = AgingScene
 local pd = playdate
-
+local ditherAmount = 0
 local gfx <const> = pd.graphics
 local tmr <const> = pd.timer
 
@@ -16,7 +16,6 @@ function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
 	self.color2 = Graphics.kColorWhite
-
     -- game stuff
     self.rotationSpeed = math.random(1, 3)
     self.xVel = 0
@@ -54,6 +53,9 @@ function scene:setValues()
 
     -- sprite stuff
     self.image = gfx.image.new("assets/images/potato.png")
+    self.image:addMask()
+    self.originalImage = self.image
+    self.originalMask = self.image:getMaskImage()
     self.sprite = gfx.sprite.new(self.image)
     self.sprite:setZIndex(10)
     self.sprite:setScale(0.75)
@@ -133,20 +135,21 @@ function scene:GameOver()
     self.gameOver = true
     self.xVel = 0
     self.score = CalcScore(self.barVal, self.maxBarVal)
+    ditherAmount = 0
     ExitAfterDelay(self.sprite)
 end
 
 function scene:exit()
+    gfx.setColor(gfx.kColorBlack)
     self.gameOver = true
-
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
 end
 
 function ExitAfterDelay(sprite)
     tmr.performAfterDelay(3000, function()
-        scene:exit()
+        scene:exit(Noble.currentScene())
         sprite:remove()
     end)
+    pd.timer.performAfterDelay(3000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
 end
 
 function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
@@ -255,6 +258,13 @@ function ScoreRoutine(score, maxScore, sprite, target, difficulty)
 
     if math.abs(target - sprite.x) <= difficulty then
         score += 1
+        ditherAmount = ditherAmount + 0.05
+        local ditherMask = sprite:getImage():getMaskImage():copy()
+        gfx.pushContext(ditherMask)
+            gfx.setDitherPattern(1 - ditherAmount, gfx.image.kDitherTypeBayer4x4)
+            gfx.fillRect(0, 0, ditherMask:getSize())
+        gfx.popContext()
+        sprite:getImage():setMaskImage(ditherMask)
         if score > maxScore then
             score = maxScore
         end

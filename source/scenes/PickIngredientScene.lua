@@ -4,6 +4,13 @@ class("PickIngredientScene").extends(NobleScene)
 local scene = PickIngredientScene
 local pd = playdate
 local gfx = pd.graphics
+local workingOnOrder = false --this should be false the first time this scene is loaded, but turned to true once an order is worked on
+local selectedIngredient = nil
+local attributes = nil --locals should mean that, when scene is reloaded, order can still be viewed
+local firstSentence = nil
+local secondSentence = nil
+local thirdSentence = nil
+local plateSpriteTable = {} --this will contain all the sprites required for the plating minigame
 --local ingredients = IngredientHandler.ingredients --gets all ingredients from the ingredient handler class and stores them in a local variable (not overriden)
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -19,19 +26,24 @@ function scene:setValues()
     self.offset = 0
 end
 
-function scene:init(__sceneProperties)
+function scene:init(__sceneProperties) --there is no function overriding in lua
     scene.super.init(self, __sceneProperties) --calls parent constructor
-    self.attributes = __sceneProperties.allAttributes
+    attributes = __sceneProperties.allAttributes
     self:setValues()
-    self:drawIngredient(self.index) --pass through first ingredient
-    self.firstSentence = __sceneProperties.firstSentence
-    self.secondSentence = __sceneProperties.secondSentence
-    self.thirdSentence = __sceneProperties.thirdSentence
-    print("New Scene")
-    print(__sceneProperties)
+    if workingOnOrder == false then
+        print("Called the function for sentences")
+        self:drawIngredient(self.index) --pass through first ingredient
+        firstSentence = __sceneProperties.firstSentence
+        secondSentence = __sceneProperties.secondSentence
+        thirdSentence = __sceneProperties.thirdSentence
+    else
+        self:drawActions()
+    end
+    print("I am " .. tostring(workingOnOrder))
 end
 function scene:drawIngredient(i)
-    local ingredientText = IngredientHandler.getIngredientFromIndex(i).name --this can be extended with string concatanation later
+    local ingredient = IngredientHandler.getIngredientFromIndex(i)
+    local ingredientText = ingredient.name .. '\n' .. ingredient.properties .. "\nLiked methods: " .. ingredient.revealedPrep --this can be extended with string concatanation later
     self.ingredientTextSprite = gfx.sprite.spriteWithText(ingredientText, 400, 200)
     self.ingredientTextSprite:moveTo(200, 100)
     self.ingredientTextSprite:add()
@@ -62,7 +74,7 @@ function scene:update()
         self.crankTurned = true
         self.offset = 0
         self:removeAllText()
-        self:drawAllText(self.firstSentence, self.secondSentence, self.thirdSentence)
+        self:drawAllText(firstSentence, secondSentence, thirdSentence)
     elseif self.crankTurned == true and self.offset < -30 then
         self.crankTurned = false
         self.offset = 0
@@ -73,7 +85,7 @@ function scene:update()
             self:drawIngredient(self.index)
         end
     end
-    if self.ingredientSelected == false and self.crankTurned == false then
+    if self.ingredientSelected == false and self.crankTurned == false and workingOnOrder == false then
         if pd.buttonJustPressed(pd.kButtonLeft) then
             --self.offset = 0
             self.index = self.index + 1
@@ -94,6 +106,7 @@ function scene:update()
         if pd.buttonJustPressed(pd.kButtonA) then
             self.ingredientSelected = true
             self.currentIngredient = IngredientHandler.getIngredientFromIndex(self.index)
+            selectedIngredient = self.currentIngredient
             self:removeAllText()
             self:drawActions()
             return
@@ -102,22 +115,29 @@ function scene:update()
             scene.exit(self)
         end
     end
-    if self.ingredientSelected == true and self.crankTurned == false then
-        if pd.buttonJustPressed(pd.kButtonB) then
+    if (self.ingredientSelected == true or workingOnOrder == true) and self.crankTurned == false then
+        if pd.buttonJustPressed(pd.kButtonB) and workingOnOrder == false then
             self.ingredientSelected = false
             self.currentIngredient = nil
+            selectedIngredient = nil
             self:removeAllText()
             self:drawIngredient(self.index)
             return
         elseif pd.buttonJustPressed(pd.kButtonDown) then
+            workingOnOrder = true
             scene.chooseLaser(scene)
         elseif pd.buttonJustPressed(pd.kButtonLeft) then
+            workingOnOrder = true
             scene.chooseSweet(scene)
         elseif pd.buttonJustPressed(pd.kButtonRight) then
+            workingOnOrder = true
             scene.chooseAge(scene)
         elseif pd.buttonJustPressed(pd.kButtonUp) then
+            workingOnOrder = true
             scene.chooseCrank(scene)
         elseif pd.buttonJustPressed(pd.kButtonA) then
+            workingOnOrder = false
+            selectedIngredient = nil
             scene.choosePlate(scene)
             --when one of these minigames is picked, save the game
         end
@@ -126,6 +146,8 @@ end
 function scene:exit()
     self:removeAllText()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+    attributes = nil
+    selectedIngredient = nil
     Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack)
 end
 function scene:chooseLaser()

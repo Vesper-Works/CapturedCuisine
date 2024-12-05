@@ -5,6 +5,7 @@ CrankScene = {}
 class("CrankScene").extends(NobleScene)
 local scene = CrankScene
 local pd = playdate
+local gfx = playdate.graphics
 local rectSprite
 local track
 local offset
@@ -15,32 +16,40 @@ local collideSprite
 local stopUpdate = false
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
-    self.color1 = Graphics.kColorBlack
-    self.color2 = Graphics.kColorWhite
-    local squareImage = pd.graphics.image.new(30, 30)
-    pd.graphics.pushContext(squareImage)
-        pd.graphics.drawRect(0, 0, 30, 30)
-    pd.graphics.popContext()
-    rectSprite = pd.graphics.sprite.new(squareImage)
-    rectSprite:moveTo(200, 200)
-    rectSprite:setZIndex(30) --should allow sprite to be above arc
-    rectSprite:add()
-    self.lastPosition = 0
-    track = pd.geometry.arc.new(200, 100, 100, 120, 240) --creation of an arc
-    local point = track:pointOnArc(0)
-    rectSprite:moveTo(point.x, point.y)
-    offset = 0
-    collideSprite = Fire(200, 100, 30, 30)
+        local squareImage = pd.graphics.image.new(30, 30)
+        pd.graphics.pushContext(squareImage)
+            pd.graphics.drawRect(0, 0, 30, 30)
+            gfx.setColor(gfx.kColorBlack)
+        pd.graphics.popContext()
+        rectSprite = pd.graphics.sprite.new(squareImage)
+        rectSprite:moveTo(200, 200)
+        rectSprite:setZIndex(30) --should allow sprite to be above arc
+        --rectSprite:add()
+        scene:addSprite(rectSprite)
+        self.lastPosition = 0
+        track = pd.geometry.arc.new(200, 100, 100, 120, 240) --creation of an arc
+        local point = track:pointOnArc(0)
+        rectSprite:moveTo(point.x, point.y)
+        offset = 0
+        collideSprite = Fire(200, 100, 30, 30)
+        scene:addSprite(collideSprite)
+        self.spriteImage = gfx.image.new("assets/images/bird.png")
+        self.sprite = gfx.sprite.new(self.spriteImage)
+        self.sprite:moveTo(50, 200)
+        self.sprite:add() --THIS WILL BE REMOVED, HOWEVER USING PNGS DOES NOT CAUSE THE SPRITES TO BE INVISIBLE AFTER USING AGINGSCENE
 end
 function scene:init() 
     scene.super.init(self)
     self:setValues()
 end
 function scene:update()
+    rectSprite.update()
+    print("The rect is at " .. rectSprite.x .. " " .. rectSprite.y)
+    collideSprite.update()
+    pd.graphics.drawArc(track)
     if stopUpdate == true then 
         return 
     end
-    pd.graphics.drawArc(track)
     local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
     offset = offset + pd.getCrankChange()
     offset = math.min(track:length(), math.max(0, offset)) --ensures that rect will be clamped between the arc
@@ -58,8 +67,11 @@ function scene:update()
             local collisionOccured = woods[i]:update() --checks if fire is collieded with
             print(collisionOccured)
             if collisionOccured == true then
+                woods[i]:remove() --remove sprite from render
+                table.remove(woods, i) --remove from table
+                index = index - 1
                 stopUpdate = true
-                scene.exit(self)
+                pd.timer.performAfterDelay(1000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
                 return --breaks the if and the loop, so that the next if is not checked
             end
             if woods[i].x <= 0 or woods[i].x >= 400 or woods[i].y <= 0 then --should the x boundary be breached or the upper y boundary (it will never go below the arc)
@@ -80,8 +92,8 @@ function scene:exit()
             index = index - 1
         end --should reset scene
     end
-    collideSprite:remove()
-    rectSprite:remove()
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
     stopUpdate = false
+    scene:removeSprite(rectSprite)
+    scene:removeSprite(collideSprite)
+    self.sprite:remove()
 end

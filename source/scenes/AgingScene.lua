@@ -65,7 +65,11 @@ function scene:setValues()
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
 
-function scene:init()
+function scene:init(__sceneProperties)
+    self.likesThisMethod = __sceneProperties.prefferedMethods
+    if self.likesThisMethod == false then
+        print("I hate this laser method")
+    end
     scene.super.init(self) --calls parent constructor
     self:setValues()
 end

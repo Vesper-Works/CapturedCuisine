@@ -19,7 +19,11 @@ function scene:setValues()
 end
 
 -- Function to initialize the scene
-function scene:init()
+function scene:init(__sceneProperties)
+    self.likesThisMethod = __sceneProperties.prefferedMethods
+    if self.likesThisMethod == false then
+        print("I hate this laser method")
+    end
     scene.super.init(self)
     self:setValues()
     self.file = "dialogue/onion_1.json"

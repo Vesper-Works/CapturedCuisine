@@ -47,7 +47,7 @@ function IngredientHandler.loadIngredients()
             diagAngry = stringToTable(tsvData[9], ","),
             diagHappy = stringToTable(tsvData[10], ","),
             diagConfused = stringToTable(tsvData[11], ","),
-            revealedPrep = '?' --added in as this information will be overwritten once preferredPreparationMethods is revealed to player
+            revealedPrep = "?" --added in as this information will be overwritten once preferredPreparationMethods is revealed to player
         }
         table.insert(IngredientHandler.ingredients, ingredient)
         tsvLine = file:readline()
@@ -109,10 +109,17 @@ function IngredientHandler.getSpriteForIngredientByName(ingredient)
     return playdate.graphics.image.new("assets/images/default")
 end
 function IngredientHandler.likedMethodRevealed(index, methodName)
+    print(methodName)
+    print(IngredientHandler.ingredients[index].name)   
     if IngredientHandler.ingredients[index].revealedPrep == "?" then
         IngredientHandler.ingredients[index].revealedPrep = methodName
     else
-        IngredientHandler.ingredients[index].revealedPrep = IngredientHandler.ingredients[index].revealedPrep .. ", " .. methodName
+        if(string.find(IngredientHandler.ingredients[index].revealedPrep, methodName) ~= nil) then
+            print("Called this if statement")
+            return
+        else
+            IngredientHandler.ingredients[index].revealedPrep = IngredientHandler.ingredients[index].revealedPrep .. ", " .. methodName
+        end 
     end
 end
 -- Return the IngredientHandler table

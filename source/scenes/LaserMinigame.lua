@@ -183,7 +183,11 @@ function LaserMinigame:start()
     Noble.Input.setHandler(LaserMinigame.inputHandler)
 end
 
-function LaserMinigame:init()
+function LaserMinigame:init(__sceneProperties)
+    self.likesThisMethod = __sceneProperties.prefferedMethods
+    if self.likesThisMethod == false then
+        print("I hate this laser method")
+    end
     gfx.sprite.setAlwaysRedraw(false)
     LaserMinigame.super.init(self) --calls parent constructor
     --pd.display.setRefreshRate(500)

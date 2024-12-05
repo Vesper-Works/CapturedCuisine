@@ -74,13 +74,12 @@ function scene:update()
     self.spriteImage = gfx.image.new(allOrders[self.index]:returnPath())
     self.sprite:setImage(self.spriteImage)
     if pd.buttonIsPressed(pd.kButtonB) then
-        scene.exit(self)
+        pd.timer.performAfterDelay(0000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence()})  end)
     end
 end
 function scene:exit()
     self.sprite:remove()
     self:removeAllText()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence()})
     
 end

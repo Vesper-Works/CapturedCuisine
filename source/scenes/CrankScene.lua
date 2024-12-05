@@ -30,7 +30,11 @@ function scene:setValues()
         collideSprite = Fire(200, 100, 30, 30)
         scene:addSprite(collideSprite)
 end
-function scene:init() 
+function scene:init(__sceneProperties)
+    self.likesThisMethod = __sceneProperties.prefferedMethods
+    if self.likesThisMethod == false then
+        print("I hate this laser method")
+    end
     scene.super.init(self)
     self:setValues()
 end

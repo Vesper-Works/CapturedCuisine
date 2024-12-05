@@ -11,6 +11,7 @@ local firstSentence = nil
 local secondSentence = nil
 local thirdSentence = nil
 local plateSpriteTable = {} --this will contain all the sprites required for the plating minigame
+local currentIndex = nil
 --local ingredients = IngredientHandler.ingredients --gets all ingredients from the ingredient handler class and stores them in a local variable (not overriden)
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -107,6 +108,7 @@ function scene:update()
             self.ingredientSelected = true
             self.currentIngredient = IngredientHandler.getIngredientFromIndex(self.index)
             selectedIngredient = self.currentIngredient
+            currentIndex = self.index
             self:removeAllText()
             self:drawActions()
             return
@@ -119,7 +121,6 @@ function scene:update()
         if pd.buttonJustPressed(pd.kButtonB) and workingOnOrder == false then
             self.ingredientSelected = false
             self.currentIngredient = nil
-            selectedIngredient = nil
             self:removeAllText()
             self:drawIngredient(self.index)
             return
@@ -146,27 +147,53 @@ end
 function scene:exit()
     self:removeAllText()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    attributes = nil
-    selectedIngredient = nil
-    Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) end)
 end
 function scene:chooseLaser()
+    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Laser Cutting")
+    if prefer == true then
+        IngredientHandler.likedMethodRevealed(currentIndex, "Laser Cutting")
+    end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(LaserMinigame, nil, Noble.Transition.DipToBlack)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(LaserMinigame, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
 end
 function scene:chooseSweet()
+    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Sweet Talking")
+    if prefer == true then
+        IngredientHandler.likedMethodRevealed(currentIndex, "Sweet Talking")
+    end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
 end
 function scene:chooseAge()
+    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Aging")
+    if prefer == true then
+        IngredientHandler.likedMethodRevealed(currentIndex, "Aging")
+    end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(AgingScene, nil, Noble.Transition.DipToBlack)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(AgingScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
 end
 function scene:chooseCrank()
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack)
+    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Alien Fryer")
+    if prefer == true then
+        IngredientHandler.likedMethodRevealed(currentIndex, "Alien Fryer")
+    end
+    print(selectedIngredient.revealedPrep)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
 end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack) end)
+end
+function scene:checkPreferredMethods(methods, methodUsed)
+    local lookUpTable = buildLookUpTable(methods)
+    return lookUpTable[methodUsed] or false
+end
+function buildLookUpTable(table) --check which methods in table are the preferred methods (could also be used for disliked methods). This may have a storage complexity of O(N) however
+    local lookUp = {}
+    for _, value in ipairs(table) do
+        print(value)
+        lookUp[value] = true
+    end
+    return lookUp
 end

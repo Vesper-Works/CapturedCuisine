@@ -16,11 +16,7 @@ local collideSprite
 local stopUpdate = false
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
-        local squareImage = pd.graphics.image.new(30, 30)
-        pd.graphics.pushContext(squareImage)
-            pd.graphics.drawRect(0, 0, 30, 30)
-            gfx.setColor(gfx.kColorBlack)
-        pd.graphics.popContext()
+        local squareImage = gfx.image.new("assets/images/bird.png")
         rectSprite = pd.graphics.sprite.new(squareImage)
         rectSprite:moveTo(200, 200)
         rectSprite:setZIndex(30) --should allow sprite to be above arc
@@ -33,10 +29,6 @@ function scene:setValues()
         offset = 0
         collideSprite = Fire(200, 100, 30, 30)
         scene:addSprite(collideSprite)
-        self.spriteImage = gfx.image.new("assets/images/bird.png")
-        self.sprite = gfx.sprite.new(self.spriteImage)
-        self.sprite:moveTo(50, 200)
-        self.sprite:add() --THIS WILL BE REMOVED, HOWEVER USING PNGS DOES NOT CAUSE THE SPRITES TO BE INVISIBLE AFTER USING AGINGSCENE
 end
 function scene:init() 
     scene.super.init(self)
@@ -95,5 +87,4 @@ function scene:exit()
     stopUpdate = false
     scene:removeSprite(rectSprite)
     scene:removeSprite(collideSprite)
-    self.sprite:remove()
 end

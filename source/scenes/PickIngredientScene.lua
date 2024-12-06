@@ -80,10 +80,14 @@ function scene:update()
         self.crankTurned = false
         self.offset = 0
         self:removeAllText()
-        if self.ingredientSelected == true then
+        if selectedIngredient ~= nil then
             self:drawActions()
-        elseif self.ingredientSelected == false then
-            self:drawIngredient(self.index)
+        else
+            if self.ingredientSelected == true then
+                self:drawActions()
+            elseif self.ingredientSelected == false then
+                self:drawIngredient(self.index)
+            end
         end
     end
     if self.ingredientSelected == false and self.crankTurned == false and workingOnOrder == false then
@@ -178,7 +182,6 @@ function scene:chooseCrank()
     if prefer == true then
         IngredientHandler.likedMethodRevealed(currentIndex, "Alien Fryer")
     end
-    print(selectedIngredient.revealedPrep)
     pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
 end
 function scene:choosePlate()

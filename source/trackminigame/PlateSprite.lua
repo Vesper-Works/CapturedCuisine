@@ -7,6 +7,7 @@ class('PlateSprite').extends(gfx.sprite)
 function PlateSprite:init(x, y, width, height)
     self.x = x
     self.y = y
+    self.finalY = 0
     self.width = width
     self.height = height
     Fire.super.init(self)
@@ -23,7 +24,7 @@ function PlateSprite:init(x, y, width, height)
 end
 
 function PlateSprite:collisionResponse(other)
-    return 'overlap'
+    return 'freeze'
 end
 function PlateSprite:setX(newX)
     self.x = newX
@@ -32,11 +33,24 @@ function PlateSprite:setY(newY)
     self.y = newY
 end
 function PlateSprite:move(newX, newY)
-    self:moveTo(newX, newY)
+    local actualX, actualY, collisions, collisionsLen = self:moveWithCollisions(newX, newY)
+    if collisionsLen ~= 0 then
+        self.finalY = newY
+        return true
+    end
 end
 function PlateSprite:getX()
     return self.x
 end
 function PlateSprite:getY()
     return self.y
+end
+function PlateSprite:getWidth()
+    return self.width
+end
+function PlateSprite:getHeight()
+    return self.height
+end
+function PlateSprite:getFinalY()
+    return self.finalY
 end

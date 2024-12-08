@@ -190,7 +190,7 @@ function scene:chooseCrank()
 end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(0000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack) end)
+    pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack) end)
 end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)

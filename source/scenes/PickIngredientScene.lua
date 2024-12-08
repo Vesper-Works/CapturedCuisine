@@ -38,7 +38,11 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
         secondSentence = __sceneProperties.secondSentence
         thirdSentence = __sceneProperties.thirdSentence
     else
-        self:drawActions()
+        if selectedIngredient ~= nil then
+            self:drawActions()
+        else
+            self:drawIngredient(self.index)
+        end
     end
     print("I am " .. tostring(workingOnOrder))
 end
@@ -90,7 +94,7 @@ function scene:update()
             end
         end
     end
-    if self.ingredientSelected == false and self.crankTurned == false and workingOnOrder == false then
+    if self.ingredientSelected == false and self.crankTurned == false and selectedIngredient == nil then
         if pd.buttonJustPressed(pd.kButtonLeft) then
             --self.offset = 0
             self.index = self.index + 1
@@ -121,7 +125,7 @@ function scene:update()
             scene.exit(self)
         end
     end
-    if (self.ingredientSelected == true or workingOnOrder == true) and self.crankTurned == false then
+    if (self.ingredientSelected == true or selectedIngredient ~= nil) and self.crankTurned == false then
         if pd.buttonJustPressed(pd.kButtonB) and workingOnOrder == false then
             self.ingredientSelected = false
             self.currentIngredient = nil
@@ -141,7 +145,7 @@ function scene:update()
             workingOnOrder = true
             scene.chooseCrank(scene)
         elseif pd.buttonJustPressed(pd.kButtonA) then
-            workingOnOrder = false
+            --workingOnOrder = false
             selectedIngredient = nil
             scene.choosePlate(scene)
             --when one of these minigames is picked, save the game

@@ -37,8 +37,8 @@ Noble.Settings.setup({
 Noble.GameData.setup({
 	Reputation = 0,
 	Day = 0,
-	Orders = {},
-	IngredientInfo = {}
+	Orders = {}, --allOrders from OrdersScene
+	IngredientInfo = {} --IngredientHandler.ingrdients 
 })
 Noble.showFPS = false
 --Noble.new(LaserMinigame)

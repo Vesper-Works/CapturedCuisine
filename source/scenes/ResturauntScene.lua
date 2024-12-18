@@ -6,7 +6,7 @@ function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
-    self.sceneText = "Welcome to the resturaunt!"
+    self.sceneText = "Welcome to the restaurant!"
     Noble.Text.setFont(Noble.Text.FONT_LARGE)
 end
 

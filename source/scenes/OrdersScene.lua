@@ -27,6 +27,8 @@ function scene:init()
     self.potentialDialogue = #allDialogue
     self:setValues()
     self:generateOrders()
+    --when loading a game in, generateOrders should be bypassed, with the order information being passed through to allOrders
+    --loaded orders may need to be passed back to an Order object
 end
 function scene:generateOrders()
     for i = 1,currentOrders do --generate the required number of orders for each level

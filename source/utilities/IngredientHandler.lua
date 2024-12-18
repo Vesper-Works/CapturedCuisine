@@ -3,7 +3,7 @@ IngredientHandler = {}
 
 -- Global table for storing ingredient data
 IngredientHandler.ingredients = {}
-
+--global, should store all ingredient information, so save this table, when loaded in this table should be passed the loaded ingredient information
 local ingredientNameToIndex = {}
 
 local pd = playdate

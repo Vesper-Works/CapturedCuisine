@@ -38,7 +38,13 @@ function scene:update()
         table.insert(renderSpriteTable, NewIngredientSprite)
         NewIngredientSprite:remove()
         sprites = sprites + 1
-        Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+        if sprites == 3 then
+            Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) --all Sprites have been added and therefore, new order can be done
+            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
+            OrdersScene.removeFinishedOrder()
+        else
+            Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+        end
     end
     if NewIngredientSprite:getY() > 250 then
         NewIngredientSprite:remove()
@@ -71,4 +77,11 @@ function scene:exit()
             RenderSprite:remove()
         end
     end
+    if sprites == 3 then
+        renderSpriteTable = {}
+        sprites = 0
+    end
+end
+function PlateScene.returnSprites()
+    return sprites
 end

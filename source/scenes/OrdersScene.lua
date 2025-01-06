@@ -7,6 +7,8 @@ local gfx <const> = pd.graphics
 local allOrders = {} --will be filled with new Orders, this will stay constant throughout the game, so once the level is finished, this needs to be cleared
 local allDialogue = {} --this will also need to be refilled with all dialogue again
 local currentOrders = 2 --this will increase by one but I'll need to figure out how statics work
+local selectedIndex = 1
+local skipGen = false
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
@@ -31,10 +33,13 @@ function scene:init()
     --loaded orders may need to be passed back to an Order object
 end
 function scene:generateOrders()
-    for i = 1,currentOrders do --generate the required number of orders for each level
-        local ord = Order(self:pickDialogue(), self:pickDialogue(), self:pickDialogue(), "assets/images/bird.png") --pickDialogue called three times to pick ingredient dialogue for order
-        table.insert(allOrders, ord)
-        currentOrders = currentOrders - 1
+    if skipGen == false then
+        for i = 1,currentOrders do --generate the required number of orders for each level
+            local ord = Order(self:pickDialogue(), self:pickDialogue(), self:pickDialogue(), "assets/images/bird.png") --pickDialogue called three times to pick ingredient dialogue for order
+            table.insert(allOrders, ord)
+            currentOrders = currentOrders - 1
+        end
+        skipGen = true
     end
     self:drawAllText(allOrders[1]:returnFirstSentence(), allOrders[1]:returnSecondSentence(), allOrders[1]:returnThirdSentence())
 end
@@ -76,8 +81,13 @@ function scene:update()
     self.spriteImage = gfx.image.new(allOrders[self.index]:returnPath())
     self.sprite:setImage(self.spriteImage)
     if pd.buttonIsPressed(pd.kButtonB) then
+        selectedIndex = self.index
         pd.timer.performAfterDelay(0000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence()})  end)
     end
+end
+function OrdersScene.removeFinishedOrder()
+    table.remove(allOrders, selectedIndex)
+    selectedIndex = 1
 end
 function scene:exit()
     self.sprite:remove()

@@ -121,7 +121,7 @@ function scene:update()
             self:drawActions()
             return
         end
-        if pd.buttonJustPressed(pd.kButtonB) then
+        if pd.buttonJustPressed(pd.kButtonB) and PlateScene.returnSprites() == 0 then
             scene.exit(self)
         end
     end
@@ -131,6 +131,7 @@ function scene:update()
             self.currentIngredient = nil
             self:removeAllText()
             self:drawIngredient(self.index)
+            selectedIngredient = nil
             return
         elseif pd.buttonJustPressed(pd.kButtonDown) then
             workingOnOrder = true
@@ -195,6 +196,16 @@ end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
     return lookUpTable[methodUsed] or false
+end
+function PickIngredientScene.reset()
+    workingOnOrder = false 
+    selectedIngredient = nil
+    attributes = nil 
+    firstSentence = nil
+    secondSentence = nil
+    thirdSentence = nil
+    plateSpriteTable = {}
+    currentIndex = nil
 end
 function buildLookUpTable(table) --check which methods in table are the preferred methods (could also be used for disliked methods). This may have a storage complexity of O(N) however
     local lookUp = {}

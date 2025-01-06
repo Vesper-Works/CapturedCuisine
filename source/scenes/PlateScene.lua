@@ -39,9 +39,9 @@ function scene:update()
         NewIngredientSprite:remove()
         sprites = sprites + 1
         if sprites == 3 then
+            OrdersScene.removeFinishedOrder()
             Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) --all Sprites have been added and therefore, new order can be done
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
-            OrdersScene.removeFinishedOrder()
         else
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
         end

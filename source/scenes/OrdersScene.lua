@@ -33,6 +33,7 @@ function scene:init()
     --loaded orders may need to be passed back to an Order object
 end
 function scene:generateOrders()
+    printTable(allOrders)
     if skipGen == false then
         for i = 1,currentOrders do --generate the required number of orders for each level
             local ord = Order(self:pickDialogue(), self:pickDialogue(), self:pickDialogue(), "assets/images/bird.png") --pickDialogue called three times to pick ingredient dialogue for order

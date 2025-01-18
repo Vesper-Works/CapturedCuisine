@@ -7,6 +7,7 @@ local gfx <const> = pd.graphics
 local allOrders = {} --will be filled with new Orders, this will stay constant throughout the game, so once the level is finished, this needs to be cleared
 local allDialogue = {} --this will also need to be refilled with all dialogue again
 local currentOrders = 2 --this will increase by one but I'll need to figure out how statics work
+local levelOrders = 2
 local selectedIndex = 1
 local skipGen = false
 function scene:setValues()
@@ -33,7 +34,6 @@ function scene:init()
     --loaded orders may need to be passed back to an Order object
 end
 function scene:generateOrders()
-    printTable(allOrders)
     if skipGen == false then
         for i = 1,currentOrders do --generate the required number of orders for each level
             local ord = Order(self:pickDialogue(), self:pickDialogue(), self:pickDialogue(), "assets/images/bird.png") --pickDialogue called three times to pick ingredient dialogue for order
@@ -88,7 +88,18 @@ function scene:update()
 end
 function OrdersScene.removeFinishedOrder()
     table.remove(allOrders, selectedIndex)
+    skipGen = false
     selectedIndex = 1
+end
+function OrdersScene.returnNumberOfOutstandingOrders()
+    return #allOrders
+end
+function OrdersScene.incrementLevelOrders()
+    skipGen = false
+    currentOrders = levelOrders + 1
+    levelOrders = currentOrders
+    selectedIndex = 1
+    print(currentOrders)
 end
 function scene:exit()
     self.sprite:remove()

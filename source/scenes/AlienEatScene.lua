@@ -18,10 +18,11 @@ function scene:update()
     scene.super.update(self)
     Noble.Text.draw(self.sceneText, 20, 20, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont()) --it's possible this works but we may need a font asset
     if pd.buttonIsPressed(pd.kButtonB) then
+        OrdersScene.incrementLevelOrders()
+        Noble.transition(ResturauntScene, nil, Noble.Transition.DipToBlack)
         scene.exit(self)
     end
 end
 function scene:exit()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    Noble.transition(MainMenuGrid, nil, Noble.Transition.DipToBlack)
 end

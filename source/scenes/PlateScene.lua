@@ -40,7 +40,11 @@ function scene:update()
         sprites = sprites + 1
         if sprites == 3 then
             OrdersScene.removeFinishedOrder()
-            Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) --all Sprites have been added and therefore, new order can be done
+            if OrdersScene.returnNumberOfOutstandingOrders() <= 0 then
+                Noble.transition(AlienEatScene, nil, Noble.Transition.DipToBlack)
+            else
+                Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) --all Sprites have been added and therefore, new order can be done
+            end
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
         else
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)

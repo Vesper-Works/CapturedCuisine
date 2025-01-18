@@ -98,6 +98,7 @@ function OrdersScene.incrementLevelOrders()
     skipGen = false
     currentOrders = levelOrders + 1
     levelOrders = currentOrders
+    --for some reason the transition between AlienEatScene to RestaurantScene causes this function to run twice (?)
     selectedIndex = 1
     print(currentOrders)
 end

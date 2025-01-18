@@ -12,6 +12,7 @@ local secondSentence = nil
 local thirdSentence = nil
 local plateSpriteTable = {} --this will contain all the sprites required for the plating minigame
 local currentIndex = nil
+local reputation = 0
 --local ingredients = IngredientHandler.ingredients --gets all ingredients from the ingredient handler class and stores them in a local variable (not overriden)
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -131,6 +132,7 @@ function scene:update()
             self.currentIngredient = nil
             self:removeAllText()
             self:drawIngredient(self.index)
+            reputation = 0
             selectedIngredient = nil
             return
         elseif pd.buttonJustPressed(pd.kButtonDown) then
@@ -191,14 +193,15 @@ function scene:chooseCrank()
 end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack) end)
+    pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = reputation}) end)
 end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
     return lookUpTable[methodUsed] or false
 end
 function PickIngredientScene.reset()
-    workingOnOrder = false 
+    workingOnOrder = false
+    reputation = 0
     selectedIngredient = nil
     attributes = nil 
     firstSentence = nil
@@ -214,4 +217,7 @@ function buildLookUpTable(table) --check which methods in table are the preferre
         lookUp[value] = true
     end
     return lookUp
+end
+function PickIngredientScene.updateReputation(rep)
+    reputation = rep
 end

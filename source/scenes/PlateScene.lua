@@ -4,6 +4,7 @@ class("PlateScene").extends(NobleScene)
 local scene = PlateScene
 local pd = playdate
 local renderSpriteTable = {}
+local totalRep = 0
 local sprites = 0
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -15,7 +16,8 @@ function scene:setValues()
     self.startingY = 200
 end
 
-function scene:init()
+function scene:init(__sceneProperties)
+    self.rep = __sceneProperties.rep
     scene.super.init(self) --calls parent constructor
     self:setValues()
     Plate = PlateSprite(200, 200, 50, 10)
@@ -39,18 +41,18 @@ function scene:update()
         NewIngredientSprite:remove()
         sprites = sprites + 1
         if sprites == 3 then
+            local averageRep = totalRep / 3 --calculate the average Reputation for all sprites
             OrdersScene.removeFinishedOrder()
-            if OrdersScene.returnNumberOfOutstandingOrders() <= 0 then
-                Noble.transition(AlienEatScene, nil, Noble.Transition.DipToBlack)
-            else
-                Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack) --all Sprites have been added and therefore, new order can be done
-            end
+            Noble.transition(AlienEatScene, nil, Noble.DipToBlack)
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
         else
+            totalRep = totalRep + self.rep
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
         end
+        PickIngredientScene.updateReputation(0) --reputation needs to reset
     end
     if NewIngredientSprite:getY() > 250 then
+        PickIngredientScene.updateReputation(0)
         NewIngredientSprite:remove()
         Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
     end

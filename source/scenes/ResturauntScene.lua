@@ -22,6 +22,6 @@ function scene:update()
     end
 end
 function scene:exit()
-    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     Noble.transition(OrdersScene, nil, Noble.Transition.DipToBlack)
+    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
 end

@@ -13,6 +13,7 @@ function scene:setValues()
     self.color2 = Graphics.kColorWhite
     self.currentIngredient = "Onion_1"
     self.reputation = 1.00
+    self.attempts = 5
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     pd.graphics.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     interact = true
@@ -96,5 +97,4 @@ end
 function scene:exit() 
     pd.graphics.setFont(Noble.Text.FONT_MEDIUM)
     print("Scene exited")
-    --table.insert(newIngredient["methodScores"], { "SweetTalking", 0.56 })
 end

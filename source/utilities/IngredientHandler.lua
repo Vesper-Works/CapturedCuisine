@@ -48,7 +48,7 @@ function IngredientHandler.loadIngredients()
             diagHappy = stringToTable(tsvData[10], ","),
             diagConfused = stringToTable(tsvData[11], ","),
             revealedPrep = "?", --added in as this information will be overwritten once preferredPreparationMethods is revealed to player,
-            startingRep = 0
+            startingRep = 10
         }
         table.insert(IngredientHandler.ingredients, ingredient)
         tsvLine = file:readline()

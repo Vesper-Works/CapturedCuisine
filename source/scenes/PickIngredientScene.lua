@@ -132,8 +132,8 @@ function scene:update()
             self.currentIngredient = nil
             self:removeAllText()
             self:drawIngredient(self.index)
-            reputation = 0
             selectedIngredient = nil
+            reputation = 0
             return
         elseif pd.buttonJustPressed(pd.kButtonDown) then
             workingOnOrder = true
@@ -194,6 +194,7 @@ end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = reputation}) end)
+    reputation = 0
 end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
@@ -201,7 +202,6 @@ function scene:checkPreferredMethods(methods, methodUsed)
 end
 function PickIngredientScene.reset()
     workingOnOrder = false
-    reputation = 0
     selectedIngredient = nil
     attributes = nil 
     firstSentence = nil
@@ -209,6 +209,7 @@ function PickIngredientScene.reset()
     thirdSentence = nil
     plateSpriteTable = {}
     currentIndex = nil
+    reputation = 0
 end
 function buildLookUpTable(table) --check which methods in table are the preferred methods (could also be used for disliked methods). This may have a storage complexity of O(N) however
     local lookUp = {}
@@ -218,6 +219,9 @@ function buildLookUpTable(table) --check which methods in table are the preferre
     end
     return lookUp
 end
-function PickIngredientScene.updateReputation(rep)
-    reputation = rep
+function PickIngredientScene.updateReputation(multiplier)
+    if selectedIngredient == nil then 
+        return
+    end
+    reputation = selectedIngredient.startingRep * multiplier; --update the reputation of the current ingredient here
 end

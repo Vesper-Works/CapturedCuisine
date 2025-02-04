@@ -68,6 +68,9 @@ function scene:update()
                 index = index - 1
                 stopUpdate = true
                 pd.timer.performAfterDelay(1000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
+                if self.likesThisMethod == true then
+                    PickIngredientScene.updateReputation(2) --on success update the reputation of the ingredient
+                end
                 return --breaks the if and the loop, so that the next if is not checked
             end
             if woods[i].x <= 0 or woods[i].x >= 400 or woods[i].y <= 0 then --should the x boundary be breached or the upper y boundary (it will never go below the arc)

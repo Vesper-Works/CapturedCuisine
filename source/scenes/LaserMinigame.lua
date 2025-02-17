@@ -187,6 +187,10 @@ function LaserMinigame:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
     if self.likesThisMethod == false then
         print("I hate this laser method")
+        PickIngredientScene.updateReputation(0)
+    elseif self.likesThisMethod == true then
+        print("I love this method")
+        PickIngredientScene.updateReputation(2) --for now just
     end
     gfx.sprite.setAlwaysRedraw(false)
     LaserMinigame.super.init(self) --calls parent constructor

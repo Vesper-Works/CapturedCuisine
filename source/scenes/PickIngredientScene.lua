@@ -210,6 +210,7 @@ function PickIngredientScene.reset()
     plateSpriteTable = {}
     currentIndex = nil
     reputation = 0
+    IngredientHandler.resetStartRep()
 end
 function buildLookUpTable(table) --check which methods in table are the preferred methods (could also be used for disliked methods). This may have a storage complexity of O(N) however
     local lookUp = {}
@@ -223,5 +224,5 @@ function PickIngredientScene.updateReputation(multiplier)
     if selectedIngredient == nil then 
         return
     end
-    reputation = selectedIngredient.startingRep * multiplier; --update the reputation of the current ingredient here
+    selectedIngredient.startingRep = selectedIngredient.startingRep * multiplier
 end

@@ -123,5 +123,10 @@ function IngredientHandler.likedMethodRevealed(index, methodName)
         end 
     end
 end
+function IngredientHandler.resetStartRep() --reset reputation of all ingredients after an order is complete
+    for i, v in ipairs(IngredientHandler.ingredients) do
+        IngredientHandler.ingredients[i].startingRep = 10
+    end
+end
 -- Return the IngredientHandler table
 return IngredientHandler

@@ -51,9 +51,10 @@ function scene:update()
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             totalRep = 0
         else
+            IngredientHandler.resetStartRep() -- everytime an ingredient is plated the default reputation must be reset
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
         end
-        PickIngredientScene.updateReputation(0) --reputation needs to reset
+        
     end
     if NewIngredientSprite:getY() > 250 then
         PickIngredientScene.updateReputation(0)

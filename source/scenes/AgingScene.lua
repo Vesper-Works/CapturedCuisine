@@ -67,7 +67,8 @@ end
 
 function scene:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
-    if self.likesThisMethod == false then
+    self.hatesThisMethod = __sceneProperties.hatedMethods
+    if self.hatesThisMethod == true then
         print("I hate this laser method")
         PickIngredientScene.updateReputation(0)
     elseif self.likesThisMethod == true then

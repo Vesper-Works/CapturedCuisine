@@ -163,34 +163,38 @@ function scene:exit()
 end
 function scene:chooseLaser()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Laser Cutting")
+    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Laser Cutting")
     if prefer == true then
         IngredientHandler.likedMethodRevealed(currentIndex, "Laser Cutting")
     end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(0000, function() Noble.transition(LaserMinigame, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(LaserMinigame, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseSweet()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Sweet Talking")
+    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Sweet Talking")
     if prefer == true then
         IngredientHandler.likedMethodRevealed(currentIndex, "Sweet Talking")
     end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseAge()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Aging")
+    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Aging")
     if prefer == true then
         IngredientHandler.likedMethodRevealed(currentIndex, "Aging")
     end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(0000, function() Noble.transition(AgingScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(AgingScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseCrank()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Alien Fryer")
+    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Alien Fryer")
     if prefer == true then
         IngredientHandler.likedMethodRevealed(currentIndex, "Alien Fryer")
     end
-    pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer}) end)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
@@ -198,7 +202,15 @@ function scene:choosePlate()
 end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
-    return lookUpTable[methodUsed] or false
+    return lookUpTable[methodUsed] or nil
+end
+function scene:checkHatedMethods(methods, methodUsed)
+    local found = string.find(methods, methodUsed)
+    print(string.find(methods, methodUsed))
+    if found ~= nil then
+        return true
+    end
+    return nil
 end
 function PickIngredientScene.reset()
     workingOnOrder = false

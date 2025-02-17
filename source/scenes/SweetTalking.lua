@@ -6,6 +6,7 @@ class("SweetTalking").extends(NobleScene)
 local scene = SweetTalking
 local pd = playdate
 local interact = true
+local MAX_ATTEMPTS = 5 --constant for now, though this may change to a variable based on how future dialogue files are configured
 -- Function to set initial values for the scene
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -13,7 +14,7 @@ function scene:setValues()
     self.color2 = Graphics.kColorWhite
     self.currentIngredient = "Onion_1"
     self.reputation = 1.00
-    self.attempts = 5
+    self.attempts = 0
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     pd.graphics.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
     interact = true
@@ -22,12 +23,13 @@ end
 -- Function to initialize the scene
 function scene:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
-    if self.likesThisMethod == false then
+    self.hatesThisMethod = __sceneProperties.hatedMethods
+    print(self.likesThisMethod)
+    if self.hatesThisMethod == true then
         print("I hate this laser method")
         PickIngredientScene.updateReputation(0)
     elseif self.likesThisMethod == true then
         print("I love this method")
-        PickIngredientScene.updateReputation(2) --for now just
     end
     scene.super.init(self)
     self:setValues()
@@ -75,12 +77,22 @@ end
 
 -- Function to refresh dialogue based on the current branch
 function scene:processDialogue(dialogue)
+    self.attempts = self.attempts + 1
     if dialogue["success"] == false then
         self.reputation = self.reputation * 0.8 --for now, reduce multiplier on every failed attempt
         return --prevents scene from exiting early
     end
     if not dialogue["branch"] then
         print("No further branches available or branch data is missing.")
+        if self.likesThisMethod == true and self.attempts <= MAX_ATTEMPTS then
+            PickIngredientScene.updateReputation(2) --correct cooking method picked and done successfully
+        elseif self.likesThisMethod == true and self.attempts > MAX_ATTEMPTS then
+            PickIngredientScene.updateReputation(1) --reputation stays at 1 multiplier
+        elseif self.likesThisMethod == nil and self.attempts <= MAX_ATTEMPTS then
+            PickIngredientScene.updateReputation(1)
+        elseif self.likesThisMethod == nil and self.attempts > MAX_ATTEMPTS then
+            PickIngredientScene.updateReputation(0)
+        end
         pd.timer.performAfterDelay(3000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
         interact = false
         return

@@ -149,6 +149,7 @@ function scene:update()
             scene.chooseCrank(scene)
         elseif pd.buttonJustPressed(pd.kButtonA) then
             --workingOnOrder = false
+            reputation = selectedIngredient.startingRep
             selectedIngredient = nil
             scene.choosePlate(scene)
             --when one of these minigames is picked, save the game
@@ -194,7 +195,6 @@ end
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = reputation}) end)
-    reputation = 0
 end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)

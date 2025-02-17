@@ -18,10 +18,13 @@ end
 
 function scene:init(__sceneProperties)
     self.rep = __sceneProperties.rep
+    print(self.rep)
     scene.super.init(self) --calls parent constructor
     self:setValues()
     Plate = PlateSprite(200, 200, 50, 10)
     Plate:add()
+    totalRep = totalRep + self.rep
+    print(totalRep)
     if sprites ~= 0 then
         for i, v in ipairs(renderSpriteTable) do
             RenderSprite = renderSpriteTable[i]
@@ -48,7 +51,6 @@ function scene:update()
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             totalRep = 0
         else
-            totalRep = totalRep + self.rep
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
         end
         PickIngredientScene.updateReputation(0) --reputation needs to reset

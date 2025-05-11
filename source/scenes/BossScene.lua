@@ -3,6 +3,7 @@ class("BossScene").extends(NobleScene)
 local scene = BossScene
 local pd = playdate
 local gfx <const> = pd.graphics
+local numberOfGoodDays = 0
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
@@ -18,6 +19,9 @@ function scene:init(__sceneProperties)
     scene.super.init(self, __sceneProperties) --calls parent constructor
     self.message = __sceneProperties.bossMessage
     self.addIngredient = __sceneProperties.succeeded
+    if(self.addIngredient) then
+        numberOfGoodDays = numberOfGoodDays + 1
+    end
     self:drawAllText()
 end
 function scene:drawAllText()

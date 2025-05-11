@@ -4,8 +4,9 @@ class("PlateScene").extends(NobleScene)
 local scene = PlateScene
 local pd = playdate
 local renderSpriteTable = {}
-local totalRep = 0
 local sprites = 0
+local timesCalled = 0
+local ingredientsRep = {0, 0, 0}
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
@@ -18,13 +19,12 @@ end
 
 function scene:init(__sceneProperties)
     self.rep = __sceneProperties.rep
-    print(self.rep)
     scene.super.init(self) --calls parent constructor
     self:setValues()
     Plate = PlateSprite(200, 200, 50, 10)
     Plate:add()
-    totalRep = totalRep + self.rep
-    print(totalRep)
+    --totalRep = totalRep + self.rep
+    timesCalled = timesCalled + 1
     if sprites ~= 0 then
         for i, v in ipairs(renderSpriteTable) do
             RenderSprite = renderSpriteTable[i]
@@ -40,26 +40,19 @@ end
 function scene:update()
     self.speed = self.speed + self.acceleration
     if NewIngredientSprite:move(NewIngredientSprite:getX(), NewIngredientSprite:getY() + self.speed) == true then
+        print("We have called this")
         table.insert(renderSpriteTable, NewIngredientSprite)
         NewIngredientSprite:remove()
         sprites = sprites + 1
-        if sprites == 3 then
-            local averageRep = totalRep / 3 --calculate the average Reputation for all sprites
-            print(averageRep)
-            OrdersScene.removeFinishedOrder()
-            Noble.transition(AlienEatScene, nil, Noble.DipToBlack, nil, {rep = averageRep})
-            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
-            totalRep = 0
-        else
-            IngredientHandler.resetStartRep() -- everytime an ingredient is plated the default reputation must be reset
-            Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
-        end
-        
+        ingredientsRep[timesCalled] = self.rep
+        self:checkSceneEnd()
     end
-    if NewIngredientSprite:getY() > 250 then
+    if NewIngredientSprite:getY() > 400 then
+        print("Called this")
         PickIngredientScene.updateReputation(0)
         NewIngredientSprite:remove()
-        Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+        ingredientsRep[timesCalled] = 0
+        self:checkSceneEnd()
     end
     local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
     if Plate:getX() + pd.getCrankChange() < (Plate:getWidth() / 2) then
@@ -79,6 +72,24 @@ function scene:update()
         scene.exit(self)
     end
 end
+function scene:checkSceneEnd()
+    if timesCalled == 3 then
+            print(ingredientsRep[1])
+            OrdersScene.removeFinishedOrder()
+            local totalRep = ingredientsRep[1] + ingredientsRep[2] + ingredientsRep[3]
+            print(totalRep)
+            local averageRep = totalRep / 3 --calculate the average Reputation for all sprites
+            print(averageRep)
+            Noble.transition(AlienEatScene, nil, Noble.DipToBlack, nil, {rep = averageRep})
+            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
+            timesCalled = 0
+            ingredientsRep = {0, 0, 0}
+            self:resetSprites()
+        else
+            IngredientHandler.resetStartRep() -- everytime an ingredient is plated the default reputation must be reset
+            Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+        end
+end
 function scene:exit()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     Plate:remove()
@@ -88,11 +99,18 @@ function scene:exit()
             RenderSprite:remove()
         end
     end
-    if sprites == 3 then
-        renderSpriteTable = {}
-        sprites = 0
-    end
+    
 end
 function PlateScene.returnSprites()
     return sprites
+end
+function scene:resetSprites()
+    if sprites ~= 0 then
+        for i, v in ipairs(renderSpriteTable) do
+            RenderSprite = renderSpriteTable[i]
+            RenderSprite:remove()
+        end
+    end
+    renderSpriteTable = {}
+    sprites = 0
 end

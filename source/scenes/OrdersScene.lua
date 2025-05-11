@@ -108,3 +108,6 @@ function scene:exit()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     
 end
+function OrdersScene.returnNumberOfDayOrders() 
+    return levelOrders
+end

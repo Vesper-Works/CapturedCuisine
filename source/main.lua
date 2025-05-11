@@ -25,6 +25,7 @@ import 'scenes/OrdersScene'
 import 'scenes/PickIngredientScene'
 import 'scenes/PlateScene'
 import 'scenes/AlienEatScene'
+import 'scenes/BossScene'
 
 local pd = playdate
 local gfx = pd.graphics

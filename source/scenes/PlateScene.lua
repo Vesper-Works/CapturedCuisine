@@ -47,7 +47,7 @@ function scene:update()
             local averageRep = totalRep / 3 --calculate the average Reputation for all sprites
             print(averageRep)
             OrdersScene.removeFinishedOrder()
-            Noble.transition(AlienEatScene, nil, Noble.DipToBlack)
+            Noble.transition(AlienEatScene, nil, Noble.DipToBlack, nil, {rep = averageRep})
             PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             totalRep = 0
         else

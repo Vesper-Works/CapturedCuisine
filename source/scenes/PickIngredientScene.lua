@@ -49,7 +49,7 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
 end
 function scene:drawIngredient(i)
     local ingredient = IngredientHandler.getIngredientFromIndex(i)
-    local ingredientText = ingredient.name .. '\n' .. ingredient.properties .. "\nLiked methods: " .. ingredient.revealedPrep --this can be extended with string concatanation later
+    local ingredientText = ingredient.name .. '\n' .. ingredient.properties .. "\nLiked methods: " .. ingredient.revealedPrep .. "\nDisliked methods: " .. ingredient.revealedHate --this can be extended with string concatanation later
     self.ingredientTextSprite = gfx.sprite.spriteWithText(ingredientText, 400, 200)
     self.ingredientTextSprite:moveTo(200, 100)
     self.ingredientTextSprite:add()
@@ -164,36 +164,32 @@ end
 function scene:chooseLaser()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Laser Cutting")
     local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Laser Cutting")
-    if prefer == true then
-        IngredientHandler.likedMethodRevealed(currentIndex, "Laser Cutting")
-    end
+    self:updateLikeOrDislike(prefer, hated, currentIndex, "Laser Cutting")
+    
+    --if prefer == true then
+    --    IngredientHandler.likedMethodRevealed(currentIndex, "Laser Cutting")
+    --end
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(0000, function() Noble.transition(LaserMinigame, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseSweet()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Sweet Talking")
     local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Sweet Talking")
-    if prefer == true then
-        IngredientHandler.likedMethodRevealed(currentIndex, "Sweet Talking")
-    end
+    self:updateLikeOrDislike(prefer, hated, currentIndex, "Sweet Talking")
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseAge()
-    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Aging")
-    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Aging")
-    if prefer == true then
-        IngredientHandler.likedMethodRevealed(currentIndex, "Aging")
-    end
+    local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Time Machine")
+    local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Time Machine")
+    self:updateLikeOrDislike(prefer, hated, currentIndex, "Time Machine")
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(0000, function() Noble.transition(AgingScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:chooseCrank()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Alien Fryer")
     local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Alien Fryer")
-    if prefer == true then
-        IngredientHandler.likedMethodRevealed(currentIndex, "Alien Fryer")
-    end
+    self:updateLikeOrDislike(prefer, hated, currentIndex, "Alien Fryer")
     pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
 function scene:choosePlate()
@@ -203,6 +199,14 @@ end
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
     return lookUpTable[methodUsed] or nil
+end
+function scene:updateLikeOrDislike(like, hate, i, method)
+    if like == true  then 
+        IngredientHandler.likedMethodRevealed(i, method)
+    elseif hate == true then
+        IngredientHandler.hatedMethodRevealed(i, method)
+    else return
+    end
 end
 function scene:checkHatedMethods(methods, methodUsed)
     local found = string.find(methods, methodUsed)

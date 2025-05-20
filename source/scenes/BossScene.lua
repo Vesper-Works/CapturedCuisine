@@ -20,7 +20,7 @@ function scene:init(__sceneProperties)
     self.message = __sceneProperties.bossMessage
     self.addIngredient = __sceneProperties.succeeded
     if(self.addIngredient) then
-        numberOfGoodDays = numberOfGoodDays + 1
+        numberOfGoodDays = numberOfGoodDays + 1 --if number of good days is greater than 1 this will mean the game is won
     end
     self:drawAllText()
 end

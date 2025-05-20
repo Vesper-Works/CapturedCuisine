@@ -25,7 +25,7 @@ end
 
 -- Method to load ingredient data from a TSV file, call on game startup
 function IngredientHandler.loadIngredients()
-    local file = playdate.file.open("assets/data/Ingredients.tsv", pd.file.kFileRead)
+    local file = playdate.file.open("assets/data/AdaptedIngredients.tsv", pd.file.kFileRead)
     local tsvLine = file:readline()
 
     repeat
@@ -40,14 +40,8 @@ function IngredientHandler.loadIngredients()
             properties = tsvData[2],
             dislikedPreparationMethods = tsvData[3],
             preferredPreparationMethods = stringToTable(tsvData[4], "→"),
-            pairingSuggestions = stringToTable(tsvData[5], ","),
-            sentient = tsvData[6] ~= "",
-            personality = tsvData[7],
-            startingIngredient = tsvData[8] ~= "",
-            diagAngry = stringToTable(tsvData[9], ","),
-            diagHappy = stringToTable(tsvData[10], ","),
-            diagConfused = stringToTable(tsvData[11], ","),
             revealedPrep = "?", --added in as this information will be overwritten once preferredPreparationMethods is revealed to player,
+            revealedHate = "?",
             startingRep = 10
         }
         table.insert(IngredientHandler.ingredients, ingredient)
@@ -120,6 +114,20 @@ function IngredientHandler.likedMethodRevealed(index, methodName)
             return
         else
             IngredientHandler.ingredients[index].revealedPrep = IngredientHandler.ingredients[index].revealedPrep .. ", " .. methodName
+        end 
+    end
+end
+function IngredientHandler.hatedMethodRevealed(index, methodName) 
+    print(methodName)
+    print(IngredientHandler.ingredients[index].name)   
+    if IngredientHandler.ingredients[index].revealedHate == "?" then
+        IngredientHandler.ingredients[index].revealedHate = methodName
+    else
+        if(string.find(IngredientHandler.ingredients[index].revealedHate, methodName) ~= nil) then
+            print("Called this if statement")
+            return
+        else
+            IngredientHandler.ingredients[index].revealedHate = IngredientHandler.ingredients[index].revealedHate .. ", " .. methodName
         end 
     end
 end

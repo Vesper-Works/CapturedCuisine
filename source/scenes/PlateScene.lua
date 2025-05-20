@@ -23,6 +23,7 @@ function scene:init(__sceneProperties)
     self:setValues()
     Plate = PlateSprite(200, 200, 50, 10)
     Plate:add()
+    print(self.rep)
     --totalRep = totalRep + self.rep
     timesCalled = timesCalled + 1
     if sprites ~= 0 then

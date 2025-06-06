@@ -6,6 +6,7 @@ class("CrankScene").extends(NobleScene)
 local scene = CrankScene
 local pd = playdate
 local gfx = playdate.graphics
+local geo = pd.geometry
 local rectSprite
 local track
 local offset
@@ -14,6 +15,16 @@ local index = 0
 local speed = 2
 local collideSprite
 local stopUpdate = false
+local Animator = gfx.animator
+local sideOne = geo.lineSegment.new(140, 60, 260, 60)
+local sideTwo = geo.lineSegment.new(260, 60, 200, 0)
+local sideThree = geo.lineSegment.new(200, 0, 140, 60)
+local parts = {sideOne, sideTwo, sideThree}
+--local parts = {topLine, trArc, rightLine, brArc, bottomLine, blArc, leftLine, tlArc}
+
+local partsAnimation = Animator.new(5000, parts, playdate.easingFunctions.linear)
+partsAnimation.repeatCount = -1
+partsAnimation.reverses = true
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
         local squareImage = gfx.image.new("assets/images/bird.png")
@@ -44,6 +55,7 @@ function scene:init(__sceneProperties)
     self:setValues()
 end
 function scene:update()
+    collideSprite:moveTo(partsAnimation:currentValue())
     rectSprite.update()
     print("The rect is at " .. rectSprite.x .. " " .. rectSprite.y)
     collideSprite.update()

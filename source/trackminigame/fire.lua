@@ -1,5 +1,6 @@
 import "CoreLibs/object"
 import "CoreLibs/sprites"
+import "CoreLibs/Animator"
 Fire = {}
 local pd = playdate
 local gfx = pd.graphics

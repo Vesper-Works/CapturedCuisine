@@ -26,7 +26,6 @@ import 'scenes/PickIngredientScene'
 import 'scenes/PlateScene'
 import 'scenes/AlienEatScene'
 import 'scenes/BossScene'
-
 local pd = playdate
 local gfx = pd.graphics
 local mainMenuLoad = 3000 --should load after 3 seconds, change this pending on how long we wish the opening cinematic to be

@@ -4,7 +4,7 @@ Wood = {}
 local pd = playdate
 local gfx = pd.graphics
 local woodSprite
-local speed = 5
+local speed = 2
 class('Wood').extends(gfx.sprite)
 function Wood:init(x, y, width, height, originX)
     self.originX = originX 

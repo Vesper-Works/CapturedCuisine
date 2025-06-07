@@ -22,7 +22,7 @@ local sideThree = geo.lineSegment.new(200, 0, 140, 60)
 local parts = {sideOne, sideTwo, sideThree}
 --local parts = {topLine, trArc, rightLine, brArc, bottomLine, blArc, leftLine, tlArc}
 
-local partsAnimation = Animator.new(5000, parts, playdate.easingFunctions.linear)
+local partsAnimation = Animator.new(2000, parts, playdate.easingFunctions.linear)
 partsAnimation.repeatCount = -1
 partsAnimation.reverses = true
 function scene:setValues()
@@ -40,6 +40,15 @@ function scene:setValues()
         offset = 0
         collideSprite = Fire(200, 100, 30, 30)
         scene:addSprite(collideSprite)
+        self.angle = 0 -- start angle
+        self.angleSweepSpeed = -0.1 -- in degrees per frame
+        self.arcLength = 100
+        self.launched = false
+        self.stopped = false
+        self.launchVelocity = 5
+        self.launchVelocityX = 0.0
+        self.launchVelocityY = 0.0
+        self.tries = 3
 end
 function scene:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
@@ -49,30 +58,54 @@ function scene:init(__sceneProperties)
         PickIngredientScene.updateReputation(0)
     elseif self.likesThisMethod == true then
         print("I love this method")
-        PickIngredientScene.updateReputation(2) --for now just
+        PickIngredientScene.updateReputation(2)
     end
     scene.super.init(self)
     self:setValues()
 end
 function scene:update()
+    if self.tries == 0 then
+        pd.timer.performAfterDelay(1000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
+    end
     collideSprite:moveTo(partsAnimation:currentValue())
     rectSprite.update()
-    print("The rect is at " .. rectSprite.x .. " " .. rectSprite.y)
     collideSprite.update()
     pd.graphics.drawArc(track)
+    self:woodHandler()
     if stopUpdate == true then 
         return 
     end
-    local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
-    offset = offset + pd.getCrankChange()
-    offset = math.min(track:length(), math.max(0, offset)) --ensures that rect will be clamped between the arc
-    local point = track:pointOnArc(offset) --pointonArc = distance from original point
-    rectSprite:moveTo(point.x, point.y)
-    if pd.buttonJustReleased(pd.kButtonB) then
-        local woodObject = Wood(point.x, point.y, 20, 20, point.x) 
-        index = index + 1
-        table.insert(woods, index, woodObject)
+    if self.stopped == true then
+        if self.launched == false then
+            if pd.buttonJustPressed(pd.kButtonB) then
+                self.launched = true
+                self.launchVelocityX = self.launchVelocity * math.cos(self.angle)
+                self.launchVelocityY = self.launchVelocity * math.sin(self.angle)
+            end
+            self.angle += self.angleSweepSpeed
+            local arcX = rectSprite.x + self.arcLength * math.cos(self.angle)
+            local arcY = rectSprite.y + self.arcLength * math.sin(self.angle)
+            gfx.drawLine(rectSprite.x, rectSprite.y, arcX, arcY)
+        else
+            local woodObject = Wood(rectSprite.x, rectSprite.y, 10, 10, rectSprite.x, self.launchVelocityX, self.launchVelocityY) 
+            index = index + 1
+            table.insert(woods, index, woodObject)
+            self.launched = false
+            self.stopped = false
+        end
+    else
+        local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change
+        offset = offset + pd.getCrankChange()
+        offset = math.min(track:length(), math.max(0, offset)) --ensures that rect will be clamped between the arc
+        local point = track:pointOnArc(offset) --pointonArc = distance from original point
+        rectSprite:moveTo(point.x, point.y)
+        if pd.buttonJustPressed(pd.kButtonB) then
+            self.stopped = true
+            return
+        end
     end
+end
+function scene:woodHandler()
     for i=1,#woods do
         if woods[i] == nil then
             return
@@ -91,11 +124,15 @@ function scene:update()
                 woods[i]:remove() --remove sprite from render
                 table.remove(woods, i) --remove from table
                 index = index - 1
+                self.tries = self.tries - 1
             end
         end
     end
 end
-function scene:exit() 
+function scene:exit()
+    if self.tries == 0 then
+        PickIngredientScene.updateReputation(0)
+    end 
     for i=1, #woods do
         if woods[i] == nil then
             return

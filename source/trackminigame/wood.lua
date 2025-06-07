@@ -6,7 +6,7 @@ local gfx = pd.graphics
 local woodSprite
 local speed = 2
 class('Wood').extends(gfx.sprite)
-function Wood:init(x, y, width, height, originX)
+function Wood:init(x, y, width, height, originX, launchX, launchY)
     self.originX = originX 
     Wood.super.init(self)
     local woodImage = gfx.image.new(width, height)
@@ -16,6 +16,8 @@ function Wood:init(x, y, width, height, originX)
     self:setImage(woodImage)
     --woodSprite = gfx.sprite.new(woodImage)
     self:moveTo(x, y)
+    self.launchInX = launchX
+    self.launchInY = launchY
     self:setCollideRect(0, 0, self:getSize()) --sets the collision rect for the sprite
     --self:setGroups(1) --gives the sprite a group of 1 for collisions
     --self:setCollidesWithGroups(2) --states what group the sprite should collide with
@@ -26,7 +28,8 @@ function Wood:collisionResponse(other)
     return 'overlap' --should return the collision type to be an overlap collision
 end
 function Wood:update()
-    local actualX, actualY, collisions, collisionsLen = self:moveWithCollisions(self.x, (self.y - speed)) --moveWithCollisions takes collisions into account for movement
+    local actualX, actualY, collisions, collisionsLen = self:moveWithCollisions(self.x + (self.launchInX * speed), self.y + (self.launchInY * speed)) --moveWithCollisions takes collisions into account for movement
+    print("Wood Update Called")
             if collisionsLen ~= 0 then
                 print(collisions[1].sprite.className)
                 if collisions[1].other:isa(Fire) then --since there are no other collidable objects other than fire, collisions[1] should only be fireSprite

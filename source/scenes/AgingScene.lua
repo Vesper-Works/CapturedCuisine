@@ -132,18 +132,37 @@ function scene:update()
         Noble.Text.draw("Game Over!", 200, 40, Noble.Text.ALIGN_CENTER, false, Noble.Text.getCurrentFont)
         Noble.Text.draw("Final Score: " .. self.score, 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
-
-    -- debug
-    --print("xVel: " .. self.xVel)
-    --print("gameOver: " .. tostring(self.gameOver) .. " gameStarted: " .. tostring(self.gameStarted))
-    --print("lineWidth: " .. gfx.getLineWidth())
-    --print(self.phaseSeed)
 end
 
 function scene:GameOver()
     self.gameOver = true
     self.xVel = 0
     self.score = CalcScore(self.barVal, self.maxBarVal)
+    if self.score > 0.95 then
+        PickIngredientScene.updateReputation(0)
+        ExitAfterDelay(self.sprite)
+        return
+    end
+    if self.hatesThisMethod then
+        ExitAfterDelay(self.sprite)
+        return
+    end
+    if self.likesThisMethod then
+        if self.score <= 0.25 then
+            PickIngredientScene.updateReputation(0)
+        elseif self.score > 0.25 or self.score <= 0.75 then
+            PickIngredientScene.updateReputation(1)
+        else
+            PickIngredientScene.updateReputation(2)
+        end
+        ExitAfterDelay(self.sprite)
+        return
+    end
+    if self.score > 0.5 then
+        PickIngredientScene.updateReputation(1)
+    else
+        PickIngredientScene.updateReputation(0) 
+    end
     ditherAmount = 0
     ExitAfterDelay(self.sprite)
 end
@@ -156,9 +175,16 @@ end
 function ExitAfterDelay(sprite)
     tmr.performAfterDelay(3000, function()
         scene:exit(Noble.currentScene())
+        local ogMask = sprite:getImage():getMaskImage():copy()
+        gfx.pushContext(ogMask)
+            gfx.setDitherPattern(1, gfx.image.kDitherTypeNone)
+            gfx.fillRect(0, 0, ogMask:getSize())
+        gfx.popContext()
+        sprite:getImage():setMaskImage(ogMask)
         sprite:remove()
+        ditherAmount = 0
+        Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
     end)
-    pd.timer.performAfterDelay(3000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
 end
 
 function TimeBarRoutine(xOffset, yOffset, width, timeLimit, timer, reverse)
@@ -270,7 +296,7 @@ function ScoreRoutine(score, maxScore, sprite, target, difficulty)
         ditherAmount = ditherAmount + 0.05
         local ditherMask = sprite:getImage():getMaskImage():copy()
         gfx.pushContext(ditherMask)
-            gfx.setDitherPattern(1 - ditherAmount, gfx.image.kDitherTypeBayer4x4)
+            gfx.setDitherPattern(1 - (score / 100), gfx.image.kDitherTypeBayer4x4)
             gfx.fillRect(0, 0, ditherMask:getSize())
         gfx.popContext()
         sprite:getImage():setMaskImage(ditherMask)
@@ -278,7 +304,7 @@ function ScoreRoutine(score, maxScore, sprite, target, difficulty)
             score = maxScore
         end
     else
-        score -= 1
+        score -= 0.5
         if score < 0 then
             score = 0
         end

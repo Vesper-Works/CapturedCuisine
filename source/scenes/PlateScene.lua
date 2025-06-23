@@ -3,6 +3,7 @@ PlateScene = {}
 class("PlateScene").extends(NobleScene)
 local scene = PlateScene
 local pd = playdate
+local gfx = pd.graphics
 local renderSpriteTable = {}
 local sprites = 0
 local timesCalled = 0
@@ -29,16 +30,18 @@ function scene:init(__sceneProperties)
     if sprites ~= 0 then
         for i, v in ipairs(renderSpriteTable) do
             RenderSprite = renderSpriteTable[i]
-            print(RenderSprite:getX(), RenderSprite:getY())
             RenderSprite:move(200, self.startingY - (RenderSprite:getHeight() - 10))
             self.startingY = self.startingY - (RenderSprite:getHeight() - 10)
-            RenderSprite:add() --these are sprites that should no longer be moved
+            RenderSprite:add() --these are sprites that should no longer be moved as they are ingredients that have already been placed
         end
     end
-    NewIngredientSprite = PlateSprite(200, 50, 30, 30)
+    NewIngredientSprite = PlateSprite(200, 50, 30, 30) --current ingredient that will fall
     NewIngredientSprite:add()
+    print("TimesCalled: " .. timesCalled)
 end
 function scene:update()
+    --NewIngredientSprite.update()
+    --Plate.update()
     self.speed = self.speed + self.acceleration
     if NewIngredientSprite:move(NewIngredientSprite:getX(), NewIngredientSprite:getY() + self.speed) == true then
         print("We have called this")
@@ -65,6 +68,7 @@ function scene:update()
     if sprites ~= 0 then
         for i, v in ipairs(renderSpriteTable) do
             RenderSprite = renderSpriteTable[i]
+            --RenderSprite:update()
             RenderSprite:move(Plate:getX(), RenderSprite:getY())
         end
     end

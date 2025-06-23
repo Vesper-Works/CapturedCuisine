@@ -21,7 +21,7 @@ local splitLineOffset = pd.geometry.point.new(0, 0)
 local laserBaseNorth, laserBaseSouth, laserBaseEast, laserBaseWest
 local laserSize = 3
 local fluidSettings = { 30, 0, 200, 200 }
-
+local laserCuts = 3
 -- function which rotates a line segement around a point using the crank
 local function rotateLineSegmentAroundPoint(angle, lengthX, lengthY)
     if (lengthX == nil) then
@@ -236,7 +236,7 @@ function LaserMinigame:init(__sceneProperties)
     fluid.initialise()
 ]]
     IngredientHandler.loadIngredients()
-    IngredientHandler.test()
+    --IngredientHandler.test()
     img = IngredientHandler.getSpriteForIngredientByName("Glow Leeks")
     local newPoint = function(x, y) return pd.geometry.point.new(x, y):offsetBy(168, 88) end
     local polygon = pd.geometry.polygon.new(newPoint(0, 0), newPoint(0, 64 + 0), newPoint(64 + 0, 64 + 0),

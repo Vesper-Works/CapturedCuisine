@@ -11,6 +11,7 @@ function Fire:init(x, y, width, height)
     gfx.pushContext(fireImage)
         gfx.drawRect(0, 0, width, height) --(0, 0) is the relative x and y coordinates for the image
         gfx.setColor(gfx.kColorBlack)
+        gfx.fillRect(0, 0, width, height)
     gfx.popContext()
     self:setImage(fireImage)
     self:moveTo(x, y)

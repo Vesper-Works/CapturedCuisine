@@ -30,6 +30,7 @@ function scene:setValues()
 
     -- game logic stuff
     self.gameOver = false
+    self.loseCondition = false
     self.gameStarted = false
     self.timeLimit = 25000
 
@@ -110,7 +111,17 @@ function scene:update()
         self:GameOver()
         self.xVel = 0
     end
-
+    if self.loseCondition == false or self.gameOver == false then
+        local checkScore = CalcScore(self.barVal, self.maxBarVal)
+        if checkScore > 0.95 then
+            PickIngredientScene.updateReputation(0)
+            self.gameOver = true
+            self.loseCondition = true
+            self:GameOver()
+            return
+        end  
+    end
+    
     -- do rotation and zeroG and input stuff
     if not self.gameOver and self.gameStarted then
         ZeroGRoutine(self.sprite, self.xVel)
@@ -133,16 +144,14 @@ function scene:update()
         Noble.Text.draw("Final Score: " .. self.score, 200, 60, Noble.Text.ALIGN_CENTER, false, Noble.Text.FONT_SMALL)
     end
 end
-
 function scene:GameOver()
     self.gameOver = true
     self.xVel = 0
-    self.score = CalcScore(self.barVal, self.maxBarVal)
-    if self.score > 0.95 then
-        PickIngredientScene.updateReputation(0)
+    if self.loseCondition then
         ExitAfterDelay(self.sprite)
         return
     end
+    self.score = CalcScore(self.barVal, self.maxBarVal)
     if self.hatesThisMethod then
         ExitAfterDelay(self.sprite)
         return

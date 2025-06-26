@@ -1,0 +1,70 @@
+{
+    "Neutral": {
+            "left_dialogue": {
+                "dialogue": "Please get in the pot",
+                "response": "...",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Five pounds is all you are getting",
+                        "response": "...",
+                        "success": true
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "You won't die I promise",
+                        "response": "...",
+                        "success": true
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I'll give you a tenner",
+                        "response": "...",
+                        "success": true
+                    }
+                }
+            },
+            "middle_dialogue": {
+                "dialogue": "I want you in the pot",
+                "response": "...",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Five pounds is all you are getting",
+                        "response": "...",
+                        "success": true
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "You won't die I promise",
+                        "response": "...",
+                        "success": true
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I'll give you a tenner",
+                        "response": "...",
+                        "success": true
+                    }
+                }
+            },
+            "right_dialogue": {
+                "dialogue": "I'll give you a fiver if you go in the pot",
+                "response": "...",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Five pounds is all you are getting",
+                        "response": "...",
+                        "success": true
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "You won't die I promise",
+                        "response": "...",
+                        "success": true
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I'll give you a tenner",
+                        "response": "...",
+                        "success": true
+                    }
+                }
+            }
+    }
+}

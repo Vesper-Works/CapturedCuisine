@@ -1,0 +1,36 @@
+{
+    "Hatred": {
+            "left_dialogue": {
+                "dialogue": "Please get in the pot",
+                "response": "Why would I want to harm myself?",
+                "success": false
+            },
+            "middle_dialogue": {
+                "dialogue": "I want you in the pot",
+                "response": "You get in the pot!",
+                "success": false
+            },
+            "right_dialogue": {
+                "dialogue": "I'll give you a fiver if you go in the pot",
+                "response": "Give me a singular reason",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Five pounds is all you are getting",
+                        "response": "I will not be cooked for such a meager price",
+                        "success": false
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "You won't die I promise",
+                        "response": "I know that you are lying",
+                        "success": false
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I'll give you a tenner",
+                        "response": "Fine, but you're making a mistake",
+                        "success": true
+                    }
+                }
+            }
+    }
+}

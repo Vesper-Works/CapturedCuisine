@@ -12,7 +12,7 @@ function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
-    self.currentIngredient = "Onion_1"
+    self.currentIngredient = "Glimmering_Lumina"
     self.reputation = 1.00
     self.attempts = 0
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
@@ -33,7 +33,8 @@ function scene:init(__sceneProperties)
     end
     scene.super.init(self)
     self:setValues()
-    self.file = "dialogue/onion_1.json"
+    self.file = "dialogue/" .. self.currentIngredient .. ".json"
+    print(self.file)
     self.dialoguebranches = json.decodeFile(self.file)
 
     if not self.dialoguebranches or not self.dialoguebranches[self.currentIngredient] then

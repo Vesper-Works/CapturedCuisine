@@ -1,0 +1,36 @@
+{
+    "Pulsefruit_Spark": {
+            "left_dialogue": {
+                "dialogue": "I'm a big fan of fruit",
+                "response": "Flattery will get you nowhere",
+                "success": false
+            },
+            "middle_dialogue": {
+                "dialogue": "I'm interested in delighting our customers",
+                "response": "Oh, you have my attention",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "I want a meal that is electrifying",
+                        "response": "I wouldn't want to kill your guests",
+                        "success": false
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "I want a meal that gives a kick",
+                        "response": "Well I can certainly give that a try",
+                        "success": true
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I want a meal that is full of zest",
+                        "response": "My apologies, but I am no citrus",
+                        "success": false
+                    }
+                }
+            },
+            "right_dialogue": {
+                "dialogue": "I could tell that you were the ingredient for me",
+                "response": "You're the 12th chef that's told me that today",
+                "success": false
+            }
+    }
+}

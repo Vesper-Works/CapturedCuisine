@@ -1,0 +1,36 @@
+{
+    "Gravibean_Stout": {
+            "left_dialogue": {
+                "dialogue": "Could I interest you in a coffee?",
+                "response": "I'd be down for that",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "Do this and you can have all the coffee you desire",
+                        "response": "I like the way you think",
+                        "success": true
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "Do this and I'll give you half of my salary",
+                        "response": "What would I need that for? I'm a vegetable!",
+                        "success": false
+                    },
+                    "right_dialogue": {
+                        "dialogue": "Do this and I can get you a job here",
+                        "response": "I've seen your boss kid, I hate him",
+                        "success": false
+                    }
+                }
+            },
+            "middle_dialogue": {
+                "dialogue": "Could I interest you in a cola?",
+                "response": "Yuck, that is way too sweet",
+                "success": false
+            },
+            "right_dialogue": {
+                "dialogue": "Could I interest you in a juice?",
+                "response": "Sounds healthy! That disgusts me.",
+                "success": false
+            }
+    }
+}

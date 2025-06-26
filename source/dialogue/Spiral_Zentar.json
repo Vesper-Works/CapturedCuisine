@@ -1,0 +1,36 @@
+{
+    "Spiral_Zentar": {
+            "left_dialogue": {
+                "dialogue": "How are you doing?",
+                "response": "I'm doing fine thanks",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "I bet you're looking forward to cooking",
+                        "response": "I hate cooking sorry",
+                        "success": false
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "How would you feel about being in a meal",
+                        "response": "Seems kind of dangerous to me",
+                        "success": false
+                    },
+                    "right_dialogue": {
+                        "dialogue": "You would look fashionable in this dish",
+                        "response": "Thank you dear, I'm interested",
+                        "success": true
+                    }
+                }
+            },
+            "middle_dialogue": {
+                "dialogue": "What exactly is a Zentar?",
+                "response": "None of your business!",
+                "success": false
+            },
+            "right_dialogue": {
+                "dialogue": "What is your opinion on gourmet cuisine?",
+                "response": "Not being in it",
+                "success": false
+            }
+    }
+}

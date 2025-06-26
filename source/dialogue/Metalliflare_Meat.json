@@ -1,0 +1,36 @@
+{
+    "Metalliflare_Meat": {
+            "left_dialogue": {
+                "dialogue": "I'm a big meat eater myself",
+                "response": "Get away from me!",
+                "success": false
+            },
+            "middle_dialogue": {
+                "dialogue": "I think my customers would like a metallic taste",
+                "response": "You know I quite agree with that",
+                "success": true,
+                "branch": {
+                    "left_dialogue": {
+                        "dialogue": "I'm a big fan of lead myself",
+                        "response": "I know a liar when I see one",
+                        "success": false
+                    },
+                    "middle_dialogue": {
+                        "dialogue": "I was thinking that I needed a mercury couli",
+                        "response": "Nice try, I'm a solid hunk of meat",
+                        "success": false
+                    },
+                    "right_dialogue": {
+                        "dialogue": "I think you come from some sort of cow",
+                        "response": "Wow, an educated chef. I trust you'll do well",
+                        "success": true
+                    }
+                }
+            },
+            "right_dialogue": {
+                "dialogue": "I've never seen a meat like you before",
+                "response": "I don't really care if you have or haven't",
+                "success": false
+            }
+    }
+}

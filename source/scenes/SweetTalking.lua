@@ -12,7 +12,7 @@ function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
-    self.currentIngredient = "Glimmering_Lumina"
+    self.currentIngredient = "Neutral"
     self.reputation = 1.00
     self.attempts = 0
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))

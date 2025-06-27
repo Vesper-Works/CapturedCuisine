@@ -1,5 +1,5 @@
 {
-    "Hatred": {
+    "hatred": {
             "left_dialogue": {
                 "dialogue": "Please get in the pot",
                 "response": "Why would I want to harm myself?",
@@ -23,14 +23,31 @@
                     "middle_dialogue": {
                         "dialogue": "You won't die I promise",
                         "response": "I know that you are lying",
-                        "success": false
+                        "success": true,
+                        "branch": {
+                            "left_dialogue": {
+                            "dialogue": "The water is not that hot",
+                            "response": "The water is over 1000 degrees!",
+                            "success": false
+                            },
+                            "middle_dialogue": {
+                                "dialogue": "I know what I'm doing. I'm a professional",
+                                "response": "Fine. But you better be good.",
+                                "success": true
+                            },
+                            "right_dialogue": {
+                                "dialogue": "You really don't have a choice",
+                                "response": "I will report you to the intergalatic space cuisine standards",
+                                "success": false
+                            }
+                        }
                     },
                     "right_dialogue": {
                         "dialogue": "I'll give you a tenner",
-                        "response": "Fine, but you're making a mistake",
-                        "success": true
+                        "response": "Money will not sway me",
+                        "success": false
                     }
                 }
-            }
+        }
     }
 }

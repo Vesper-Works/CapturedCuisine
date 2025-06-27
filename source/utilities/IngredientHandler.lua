@@ -5,7 +5,8 @@ IngredientHandler = {}
 IngredientHandler.ingredients = {}
 --global, should store all ingredient information, so save this table, when loaded in this table should be passed the loaded ingredient information
 local ingredientNameToIndex = {}
-
+local filesForIngriendents = {"dialogue/hatred.json", "dialogue/hatred.json", "dialogue/Spiral_Zentar.json", "dialogue/neutral.json", "dialogue/Pulsefruit_Spark.json", "dialogue/hatred.json", "dialogue/Gravibean_Stout.json", "dialogue/hatred.json", "dialogue/Metalliflare_Meat.json", "dialogue/Starry_Quiona.json"}
+local fileIngredientNames = {"hatred", "hatred", "Spiral_Zentar", "neutral", "Pulsefruit_Spark", "hatred", "Gravibean_Stout", "hatred", "Metalliflare_Meat", "Starry_Quiona"}
 local pd = playdate
 
 ---Splits a string into a table based on a split character
@@ -27,7 +28,7 @@ end
 function IngredientHandler.loadIngredients()
     local file = playdate.file.open("assets/data/AdaptedIngredients.tsv", pd.file.kFileRead)
     local tsvLine = file:readline()
-
+    local index = 1
     repeat
         local tsvData = {}
         for value in tsvLine:gmatch("[^	]+") do
@@ -42,13 +43,15 @@ function IngredientHandler.loadIngredients()
             preferredPreparationMethods = stringToTable(tsvData[4], "→"),
             revealedPrep = "?", --added in as this information will be overwritten once preferredPreparationMethods is revealed to player,
             revealedHate = "?",
-            startingRep = 10
+            startingRep = 10,
+            dialogueFile = filesForIngriendents[index],
+            fileName = fileIngredientNames[index]
         }
         table.insert(IngredientHandler.ingredients, ingredient)
         tsvLine = file:readline()
+        index = index + 1
     until tsvLine == nil
 end
-
 function IngredientHandler.getIngredientByName(name)
     return IngredientHandler.ingredients[ingredientNameToIndex[name]]
 end

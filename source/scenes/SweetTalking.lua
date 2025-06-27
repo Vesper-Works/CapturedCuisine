@@ -6,13 +6,11 @@ class("SweetTalking").extends(NobleScene)
 local scene = SweetTalking
 local pd = playdate
 local interact = true
-local MAX_ATTEMPTS = 3 --constant for now, though this may change to a variable based on how future dialogue files are configured
 -- Function to set initial values for the scene
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
     self.color1 = Graphics.kColorBlack
     self.color2 = Graphics.kColorWhite
-    self.currentIngredient = "hatred"
     self.reputation = 1.00
     self.attempts = 0
     --Noble.Text.setFont(Graphics.font.new("assets/fonts/Beastfont-Regular"))
@@ -24,20 +22,21 @@ end
 function scene:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
     self.hatesThisMethod = __sceneProperties.hatedMethods
+    self.file = __sceneProperties.diFile
+    self.currentIngredient = __sceneProperties.ing
     print(self.likesThisMethod)
     if self.hatesThisMethod == true then
         print("I hate this laser method")
-        MAX_ATTEMPTS = 5
-    elseif self.likesThisMethod == true then
-        print("I love this method")
+        self.max_attempts = 5
+    else 
+        self.max_attempts = 3
     end
     scene.super.init(self)
     self:setValues()
-    self.file = "dialogue/" .. self.currentIngredient .. ".json"
     print(self.file)
     self.dialoguebranches = json.decodeFile(self.file)
-
-    if not self.dialoguebranches or not self.dialoguebranches[self.currentIngredient] then
+    print(self.dialoguebranches)
+    if not self.dialoguebranches then
         print("Failed to load dialogues or current ingredient not found.")
         return -- Exit if there is no data to work with
     end
@@ -49,6 +48,7 @@ end
 function scene:setupDialogues()
     local dialogues = self.dialoguebranches[self.currentIngredient]
     self.current_branch = dialogues
+    self.startScene = true
 end
 
 
@@ -83,7 +83,7 @@ end
 function scene:processDialogue(dialogue)
     self.attempts = self.attempts + 1
     if dialogue["success"] == false then
-        if self.attempts > MAX_ATTEMPTS then
+        if self.attempts > self.max_attempts then
             PickIngredientScene.updateReputation(0)
             self:backToMenu()
         end

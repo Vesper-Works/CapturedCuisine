@@ -175,9 +175,12 @@ end
 function scene:chooseSweet()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Sweet Talking")
     local hated = self:checkHatedMethods(selectedIngredient.dislikedPreparationMethods, "Sweet Talking")
+    local file = selectedIngredient.dialogueFile
+    local ingredientName = selectedIngredient.fileName
+    print("The current file is: " .. file)
     self:updateLikeOrDislike(prefer, hated, currentIndex, "Sweet Talking")
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
-    pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
+    pd.timer.performAfterDelay(0000, function() Noble.transition(SweetTalking, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated, diFile = file, ing = ingredientName}) end)
 end
 function scene:chooseAge()
     local prefer = self:checkPreferredMethods(selectedIngredient.preferredPreparationMethods, "Time Machine")

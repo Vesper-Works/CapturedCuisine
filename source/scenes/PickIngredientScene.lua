@@ -245,3 +245,6 @@ function PickIngredientScene.updateReputation(multiplier)
     end
     selectedIngredient.startingRep = selectedIngredient.startingRep * multiplier
 end
+function PickIngredientScene.getReputation()
+    return selectedIngredient.startingRep
+end

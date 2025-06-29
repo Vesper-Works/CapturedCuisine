@@ -35,7 +35,8 @@ function scene:init(__sceneProperties)
             RenderSprite:add() --these are sprites that should no longer be moved as they are ingredients that have already been placed
         end
     end
-    NewIngredientSprite = PlateSprite(200, 50, 30, 30) --current ingredient that will fall
+    local randomXPos = math.random(50, 350)
+    NewIngredientSprite = PlateSprite(randomXPos, 50, 30, 30) --current ingredient that will fall
     NewIngredientSprite:add()
     print("TimesCalled: " .. timesCalled)
 end

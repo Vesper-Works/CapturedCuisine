@@ -76,7 +76,7 @@ function scene:update()
     end
 end
 function scene:backToMenu()
-    pd.timer.performAfterDelay(3000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
+    self:goToPlate()
     interact = false
 end
 -- Function to refresh dialogue based on the current branch
@@ -115,4 +115,8 @@ end
 function scene:exit() 
     pd.graphics.setFont(Noble.Text.FONT_MEDIUM)
     print("Scene exited")
+end
+function scene:goToPlate()
+    Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+    pd.timer.performAfterDelay(3000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
 end

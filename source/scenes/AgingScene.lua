@@ -192,7 +192,8 @@ function ExitAfterDelay(sprite)
         sprite:getImage():setMaskImage(ogMask)
         sprite:remove()
         ditherAmount = 0
-        Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
+        Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+        Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()})
     end)
 end
 

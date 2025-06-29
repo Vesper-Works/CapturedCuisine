@@ -49,6 +49,7 @@ function scene:setValues()
         self.launchVelocityX = 0.0
         self.launchVelocityY = 0.0
         self.tries = 3
+        self.stopUpdate = false
 end
 function scene:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
@@ -64,8 +65,14 @@ function scene:init(__sceneProperties)
     self:setValues()
 end
 function scene:update()
+    if self.stopUpdate == true then
+        return
+    end
     if self.tries == 0 then
-        pd.timer.performAfterDelay(1000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
+        Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+        pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
+        PickIngredientScene.updateReputation(0)
+        self.stopUpdate = true
     end
     collideSprite:moveTo(partsAnimation:currentValue())
     rectSprite.update()
@@ -117,7 +124,8 @@ function scene:woodHandler()
                 table.remove(woods, i) --remove from table
                 index = index - 1
                 stopUpdate = true
-                pd.timer.performAfterDelay(1000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)  end)
+                Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+                pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
                 return --breaks the if and the loop, so that the next if is not checked
             end
             if woods[i].x <= 0 or woods[i].x >= 400 or woods[i].y <= 0 then --should the x boundary be breached or the upper y boundary (it will never go below the arc)

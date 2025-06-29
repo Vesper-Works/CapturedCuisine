@@ -56,6 +56,7 @@ function scene:update()
         print("Called this")
         PickIngredientScene.updateReputation(0)
         NewIngredientSprite:remove()
+        PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
         ingredientsRep[timesCalled] = 0
         self:checkSceneEnd()
     end
@@ -87,12 +88,13 @@ function scene:checkSceneEnd()
             local averageRep = totalRep / 3 --calculate the average Reputation for all sprites
             print(averageRep)
             Noble.transition(AlienEatScene, nil, Noble.DipToBlack, nil, {rep = averageRep})
-            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             timesCalled = 0
+            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             ingredientsRep = {0, 0, 0}
             self:resetSprites()
         else
             IngredientHandler.resetStartRep() -- everytime an ingredient is plated the default reputation must be reset
+            PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
             Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack)
         end
 end
@@ -105,7 +107,6 @@ function scene:exit()
             RenderSprite:remove()
         end
     end
-    
 end
 function PlateScene.returnSprites()
     return sprites

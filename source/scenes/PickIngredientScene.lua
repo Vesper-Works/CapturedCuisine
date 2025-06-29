@@ -147,12 +147,14 @@ function scene:update()
         elseif pd.buttonJustPressed(pd.kButtonUp) then
             workingOnOrder = true
             scene.chooseCrank(scene)
+        --[[
         elseif pd.buttonJustPressed(pd.kButtonA) then
             --workingOnOrder = false
             reputation = selectedIngredient.startingRep
             selectedIngredient = nil
             scene.choosePlate(scene)
             --when one of these minigames is picked, save the game
+            --]]
         end
     end
 end
@@ -195,10 +197,12 @@ function scene:chooseCrank()
     self:updateLikeOrDislike(prefer, hated, currentIndex, "Alien Fryer")
     pd.timer.performAfterDelay(0000, function() Noble.transition(CrankScene, nil, Noble.Transition.DipToBlack, nil, {prefferedMethods = prefer, hatedMethods = hated}) end)
 end
+--[[
 function scene:choosePlate()
     Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
     pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = reputation}) end)
 end
+--]]
 function scene:checkPreferredMethods(methods, methodUsed)
     local lookUpTable = buildLookUpTable(methods)
     return lookUpTable[methodUsed] or nil
@@ -220,6 +224,7 @@ function scene:checkHatedMethods(methods, methodUsed)
     return nil
 end
 function PickIngredientScene.reset()
+    print("Reset method called")
     workingOnOrder = false
     selectedIngredient = nil
     attributes = nil 

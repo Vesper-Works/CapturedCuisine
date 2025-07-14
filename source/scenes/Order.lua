@@ -37,7 +37,20 @@ function Order:replaceAdjective(sentence)
     print(sentence)
     return sentence --replace placeholder with required adjective
 end
-function Order:returnAdjectives()
+function Order.returnAdjectives()
     return requiredAdjectives
+end
+function Order.clearAdjective(adjective)
+    local index = 1
+    for _, val in pairs(requiredAdjectives) do
+        if val == adjective then
+            table.remove(requiredAdjectives, index)
+            break
+        end
+        index = index + 1
+    end
+end
+function Order.clearRequiredAdjectives() 
+    requiredAdjectives = {}
 end
 --use this class to insert adjectives into the sentences

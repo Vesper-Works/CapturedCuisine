@@ -13,6 +13,7 @@ local thirdSentence = nil
 local plateSpriteTable = {} --this will contain all the sprites required for the plating minigame
 local currentIndex = nil
 local reputation = 0
+local requiredAdjectives = {}
 --local ingredients = IngredientHandler.ingredients --gets all ingredients from the ingredient handler class and stores them in a local variable (not overriden)
 function scene:setValues()
     self.background = Graphics.image.new("assets/images/background1")
@@ -38,6 +39,7 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
         firstSentence = __sceneProperties.firstSentence
         secondSentence = __sceneProperties.secondSentence
         thirdSentence = __sceneProperties.thirdSentence
+        requiredAdjectives = __sceneProperties.allAdjectives
     else
         if selectedIngredient ~= nil then
             self:drawActions()
@@ -46,6 +48,7 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
         end
     end
     print("I am " .. tostring(workingOnOrder))
+    --print(requiredAdjectives[1])
 end
 function scene:drawIngredient(i)
     local ingredient = IngredientHandler.getIngredientFromIndex(i)
@@ -117,12 +120,15 @@ function scene:update()
             self.ingredientSelected = true
             self.currentIngredient = IngredientHandler.getIngredientFromIndex(self.index)
             selectedIngredient = self.currentIngredient
+            AdjectiveHandler.setIngredient(selectedIngredient.name)
+            print(AdjectiveHandler.returnAdjective())
             currentIndex = self.index
             self:removeAllText()
             self:drawActions()
             return
         end
         if pd.buttonJustPressed(pd.kButtonB) and PlateScene.returnSprites() == 0 then
+            requiredAdjectives = {}
             scene.exit(self)
         end
     end
@@ -133,6 +139,7 @@ function scene:update()
             self:removeAllText()
             self:drawIngredient(self.index)
             selectedIngredient = nil
+            --AdjectiveHandler.clearIngredient()
             reputation = 0
             return
         elseif pd.buttonJustPressed(pd.kButtonDown) then
@@ -227,6 +234,7 @@ function PickIngredientScene.reset()
     print("Reset method called")
     workingOnOrder = false
     selectedIngredient = nil
+    AdjectiveHandler.clearIngredient()
     attributes = nil 
     firstSentence = nil
     secondSentence = nil

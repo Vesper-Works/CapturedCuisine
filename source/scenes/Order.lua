@@ -2,7 +2,7 @@ Order = {}
 local pd = playdate
 local gfx = pd.graphics
 local adjectives = {'crunchy', 'fried', 'grilled', 'happy'}
-local requiredAdjectives = {}
+--local requiredAdjectives = {}
 class('Order').extends(gfx.sprite) 
 function Order:init(sentence1, sentence2, sentence3, imagePath)
     Order.super.init(self)
@@ -10,6 +10,7 @@ function Order:init(sentence1, sentence2, sentence3, imagePath)
     self.secondSentence = sentence2
     self.thirdSentence = sentence3
     self.path = imagePath
+    self.requiredAdjectives = {}
     self.firstSentence = self:replaceAdjective(self.firstSentence)
     self.secondSentence = self:replaceAdjective(self.secondSentence)
     self.thirdSentence = self:replaceAdjective(self.thirdSentence)
@@ -33,12 +34,13 @@ end
 function Order:replaceAdjective(sentence)
     local adjective = math.random(#adjectives)
     sentence = sentence:gsub("adjective", adjectives[adjective])
-    table.insert(requiredAdjectives, adjectives[adjective])
+    print(requiredAdjectives)
+    table.insert(self.requiredAdjectives, adjectives[adjective])
     print(sentence)
     return sentence --replace placeholder with required adjective
 end
-function Order.returnAdjectives()
-    return requiredAdjectives
+function Order:returnAdjectives()
+    return self.requiredAdjectives
 end
 function Order.clearAdjective(adjective)
     local index = 1

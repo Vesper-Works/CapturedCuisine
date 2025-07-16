@@ -39,6 +39,7 @@ function scene:init(__sceneProperties)
     NewIngredientSprite = PlateSprite(randomXPos, 50, 30, 30) --current ingredient that will fall
     NewIngredientSprite:add()
     print("TimesCalled: " .. timesCalled)
+    self.isThisAdjective = AdjectiveHandler.checkAdjective()
 end
 function scene:update()
     --NewIngredientSprite.update()
@@ -49,7 +50,13 @@ function scene:update()
         table.insert(renderSpriteTable, NewIngredientSprite)
         NewIngredientSprite:remove()
         sprites = sprites + 1
-        ingredientsRep[timesCalled] = self.rep
+        print(self.isThisAdjective)
+        if (self.isThisAdjective == true) then
+            ingredientsRep[timesCalled] = self.rep
+        else
+            ingredientsRep[timesCalled] = (self.rep / 2) 
+        end
+        print(ingredientsRep[timesCalled])
         self:checkSceneEnd()
     end
     if NewIngredientSprite:getY() > 400 then

@@ -33,7 +33,7 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
     scene.super.init(self, __sceneProperties) --calls parent constructor
     attributes = __sceneProperties.allAttributes
     self:setValues()
-    if workingOnOrder == false then
+    if __sceneProperties.loadInfo == true then
         print("Called the function for sentences")
         self:drawIngredient(self.index) --pass through first ingredient
         firstSentence = __sceneProperties.firstSentence
@@ -48,7 +48,7 @@ function scene:init(__sceneProperties) --there is no function overriding in lua
         end
     end
     print("I am " .. tostring(workingOnOrder))
-    --print(requiredAdjectives[1])
+    print(#requiredAdjectives)
 end
 function scene:drawIngredient(i)
     local ingredient = IngredientHandler.getIngredientFromIndex(i)
@@ -260,4 +260,15 @@ function PickIngredientScene.updateReputation(multiplier)
 end
 function PickIngredientScene.getReputation()
     return selectedIngredient.startingRep
+end
+function PickIngredientScene.getAdjectives() 
+    return requiredAdjectives
+end
+function PickIngredientScene.removeAdjective(adj)
+    for i = #requiredAdjectives, 1, -1 do
+        if (requiredAdjectives[i] == adj) then
+            table.remove(requiredAdjectives, i)
+            break
+        end
+    end
 end

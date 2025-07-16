@@ -83,7 +83,7 @@ function scene:update()
     self.sprite:setImage(self.spriteImage)
     if pd.buttonIsPressed(pd.kButtonB) then
         selectedIndex = self.index
-        pd.timer.performAfterDelay(0000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence(), allAdjectives = allOrders[self.index]:returnAdjectives()})  end)
+        pd.timer.performAfterDelay(0000, function () Noble.transition(PickIngredientScene, nil, Noble.Transition.CrossDissolve, nil, {allAttributes = allOrders[self.index]:returnAdjectives(), firstSentence = allOrders[self.index]:returnFirstSentence(), secondSentence = allOrders[self.index]:returnSecondSentence(), thirdSentence = allOrders[self.index]:returnThirdSentence(), allAdjectives = allOrders[self.index]:returnAdjectives(), loadInfo = true})  end)
     end
 end
 function OrdersScene.removeFinishedOrder()

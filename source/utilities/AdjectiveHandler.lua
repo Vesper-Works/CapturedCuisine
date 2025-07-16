@@ -1,3 +1,4 @@
+import "scenes/PickIngredientScene.lua"
 AdjectiveHandler = {}
 local pd = playdate
 local currentIngredient = ""
@@ -21,4 +22,14 @@ function AdjectiveHandler.clearIngredient()
 end
 function AdjectiveHandler.returnAdjective()
     return adjectiveDictionary[currentIngredient]
+end
+function AdjectiveHandler.checkAdjective()
+    local currentAdjectives = PickIngredientScene.getAdjectives()
+    for i = #currentAdjectives, 1, -1 do
+        if (currentAdjectives[i] == AdjectiveHandler.returnAdjective()) then
+            PickIngredientScene.removeAdjective(currentAdjectives[i])
+            return true
+        end
+    end
+    return false
 end

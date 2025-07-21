@@ -126,13 +126,14 @@ function Utilities.splitImage(image, mask, splitLine, imagePolygon, imagePos)
     gfx.lockFocus(splitMask2)
     --gfx.setDrawOffset(-imagePos.x, -imagePos.y)
     gfx.fillPolygon(polygonInverse)
-
+    
     --Combine mask and splitMask into one mask
     mask:setInverted(false)
     gfx.lockFocus(cutLineVisualMask1)
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     gfx.setStencilImage(mask)
     splitMask1:draw(0, 0)
+    
     gfx.lockFocus(cutLineVisualMask2)
     gfx.setImageDrawMode(gfx.kDrawModeInverted)
     gfx.setStencilImage(mask)
@@ -151,10 +152,10 @@ function Utilities.splitImage(image, mask, splitLine, imagePolygon, imagePos)
     gfx.drawLine(originSplitLine:offsetBy(-1, -1))
     gfx.drawLine(originSplitLine:offsetBy(1, -1))
     gfx.drawLine(originSplitLine:offsetBy(-1, 1))
-
     gfx.lockFocus(splitImg2)
+    
     --splitMask:setInverted(true)
-
+    
     gfx.setStencilImage(cutLineVisualMask1)
     image:draw(0, 0)
     gfx.setDitherPattern(0, gfx.image.kDitherTypeBayer2x2)
@@ -165,9 +166,10 @@ function Utilities.splitImage(image, mask, splitLine, imagePolygon, imagePos)
     gfx.drawLine(originSplitLine:offsetBy(-1, -1))
     gfx.drawLine(originSplitLine:offsetBy(1, -1))
     gfx.drawLine(originSplitLine:offsetBy(-1, 1))
-
+    
     gfx.unlockFocus()
     gfx.popContext()
+    --[[
     pd.debugDraw = function()
         --draw arrows pointing to show the next point on the polygon
         cutLineVisualMask1:draw(0, 0)
@@ -176,8 +178,9 @@ function Utilities.splitImage(image, mask, splitLine, imagePolygon, imagePos)
         splitMask2:draw(210, 0)
         mask:draw(280, 0)
     end
-
+    --]]
     splitPolygon:translate(imagePos.x, imagePos.y)
     polygonInverse:translate(imagePos.x, imagePos.y)
+    
     return splitImg1, splitImg2, splitPolygon, polygonInverse
 end

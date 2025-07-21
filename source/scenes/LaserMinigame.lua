@@ -94,6 +94,7 @@ local function splitSpriteIntoTwo(splitSprite, splitLine)
     --Get middle of each polygon and offset each target line to the middle of the polygon
     local averageX = 0
     local averageY = 0
+    
     for i = 1, polygonInverse:count(), 1 do
         local point = polygonInverse:getPointAt(i)
         averageX += point.x
@@ -101,7 +102,7 @@ local function splitSpriteIntoTwo(splitSprite, splitLine)
     end
     averageX = averageX / polygonInverse:count()
     averageY = averageY / polygonInverse:count()
-
+    
     local targetLine1Midpoint = targetLine1:midPoint()
     local lineOffset = pd.geometry.point.new(averageX, averageY) - targetLine1Midpoint
     targetLine1:offset(lineOffset.x, lineOffset.y)
@@ -240,7 +241,7 @@ function LaserMinigame:init(__sceneProperties)
 ]]
     IngredientHandler.loadIngredients()
     --IngredientHandler.test()
-    img = IngredientHandler.getSpriteForIngredientByName("Glow Leeks")
+    img = IngredientHandler.getSpriteForIngredientByName("Glow Leeks") --this will be important for later
     local newPoint = function(x, y) return pd.geometry.point.new(x, y):offsetBy(168, 88) end
     local polygon = pd.geometry.polygon.new(newPoint(0, 0), newPoint(0, 64 + 0), newPoint(64 + 0, 64 + 0),
         newPoint(64 + 0, 0))
@@ -260,9 +261,6 @@ end
 
 function LaserMinigame:update()
     LaserMinigame.super.update(self)
-    if self.stopUpdate == true then
-        return
-    end
     --[[
     test += pd.getCrankChange() / 360
     gfx.pushContext()
@@ -389,8 +387,9 @@ function LaserMinigame:update()
         laserBaseNorth:drawCentered(secondPoint.x, secondPoint.y)
     end
     gfx.popContext()
-
-
+    if self.stopUpdate == true then
+        return
+    end
     --splitLineStensil:draw(0,0)
     if laserCuts == 0 then
         Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
@@ -401,6 +400,8 @@ end
 
 function LaserMinigame:exit()
     laserCuts = 3
+    spritesList = {}
+    --gfx.clear()
 end
 
 --flesh this out with the actual opening cinematic later

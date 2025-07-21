@@ -167,6 +167,8 @@ LaserMinigame.inputHandler = {
         splitLineOffset:offset(0, 3)
     end,
     AButtonDown = function()
+        laserCuts = laserCuts - 1
+        print(laserCuts)
         laserCutAnimation:restart()
     end
 }
@@ -186,6 +188,7 @@ end
 function LaserMinigame:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
     self.hatesThisMethod = __sceneProperties.hatedMethods
+    self.stopUpdate = false
     if self.hatesThisMethod == true then
         print("I hate this laser method")
         PickIngredientScene.updateReputation(0)
@@ -257,7 +260,9 @@ end
 
 function LaserMinigame:update()
     LaserMinigame.super.update(self)
-
+    if self.stopUpdate == true then
+        return
+    end
     --[[
     test += pd.getCrankChange() / 360
     gfx.pushContext()
@@ -387,10 +392,15 @@ function LaserMinigame:update()
 
 
     --splitLineStensil:draw(0,0)
+    if laserCuts == 0 then
+        Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
+        pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
+        self.stopUpdate = true
+    end
 end
 
 function LaserMinigame:exit()
-    Noble.transition(PickIngredientScene, nil, Noble.Transition.DipToBlack) --move to the main scene
+    laserCuts = 3
 end
 
 --flesh this out with the actual opening cinematic later

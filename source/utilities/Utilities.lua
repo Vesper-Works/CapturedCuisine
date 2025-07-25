@@ -36,7 +36,6 @@ function Utilities.splitImage(image, mask, splitLine, imagePolygon, imagePos)
     end
     printTable(intersectionPoints)
     printTable(polygonPoints)
-
     -- Combine the intersection points with the polygon points. If the intersection point is on the edge between two polygon points, add the intersection point and the next polygon point
     local completePolygonPoints = {}
     local intersectionPointsIndices = {}

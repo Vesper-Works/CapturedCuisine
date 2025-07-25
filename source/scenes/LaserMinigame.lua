@@ -22,6 +22,7 @@ local laserBaseNorth, laserBaseSouth, laserBaseEast, laserBaseWest
 local laserSize = 3
 local fluidSettings = { 30, 0, 200, 200 }
 local laserCuts = 3
+local score = 0
 -- function which rotates a line segement around a point using the crank
 local function rotateLineSegmentAroundPoint(angle, lengthX, lengthY)
     if (lengthX == nil) then
@@ -143,6 +144,8 @@ local laserCutAnimation = Sequence.new():from(1):to(0, 0.5, "inOutQuad"):callbac
         for i = #intersectingIndex, 1, -1 do
             local splitSprite = spritesList[intersectingIndex[i]]
             if splitSpriteIntoTwo(splitSprite, splitLine) then
+                print("Called intersection")
+                score = score + 50
                 table.remove(spritesList, intersectingIndex[i])
             end
         end
@@ -388,10 +391,12 @@ function LaserMinigame:update()
     end
     gfx.popContext()
     if self.stopUpdate == true then
+        print("Score " .. score)
         return
     end
     --splitLineStensil:draw(0,0)
     if laserCuts == 0 then
+        
         Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
         pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
         self.stopUpdate = true
@@ -400,6 +405,7 @@ end
 
 function LaserMinigame:exit()
     laserCuts = 3
+    score = 0
     spritesList = {}
     --gfx.clear()
 end

@@ -62,9 +62,9 @@ function scene:update()
     if NewIngredientSprite:getY() > 400 then
         print("Called this")
         PickIngredientScene.updateReputation(0)
+        ingredientsRep[timesCalled] = 0
         NewIngredientSprite:remove()
         PickIngredientScene.reset() --should hopefully reset all static variables for pick ingredient
-        ingredientsRep[timesCalled] = 0
         self:checkSceneEnd()
     end
     local change, accelerateChange = pd.getCrankChange() --clockwise/anticlockwise, with high accelerateChange representing speed of crank change while change

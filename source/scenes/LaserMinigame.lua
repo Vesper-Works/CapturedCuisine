@@ -15,6 +15,7 @@ local splitMask
 local splitImg1
 local splitImg2
 local splitLine
+local targetLines = {}
 local spritesList = {}
 local outsideMin, outsideMaxY, outsideMaxX = 37, 203, 363
 local splitLineOffset = pd.geometry.point.new(0, 0)
@@ -74,6 +75,22 @@ local function splitSpriteIntoTwo(splitSprite, splitLine)
         --normalX = -normalX
         --normalY = -normalY
     end
+    local currentScore = 0
+    for i = 1, #targetLines, 1 do
+        print("Target Line value is: " .. targetLines[i].x .. " " .. targetLines[i].y)
+        print("Split Line value is: " .. splitLine.x .. " " .. splitLine.y)
+        local xDiff = math.abs(splitLine.x - targetLines[i].x)
+        local yDiff = math.abs(splitLine.y - targetLines[i].y)
+        local totalDiff = (xDiff + yDiff) / 10
+        print("TotalDiff value is: " .. totalDiff)
+        if totalDiff > 100 then
+            currentScore = currentScore + 0
+        else
+            currentScore = currentScore + (100 - totalDiff)
+        end
+    end
+    print("Current Score value is " .. currentScore)
+    targetLines = {}
     local speedX = (splitSprite[5] / (math.random() + 1)) + (normalX / (math.random() + 1))
     local speedY = (splitSprite[6] / (math.random() + 1)) + (normalY / (math.random() + 1))
     local speedXInv = (splitSprite[5] / (math.random() + 1)) - (normalX / (math.random() + 1))
@@ -129,6 +146,9 @@ local function splitSpriteIntoTwo(splitSprite, splitLine)
         targetLine1 }
     spritesList[#spritesList + 1] = { splitImg2, splitSprite[2], splitSprite[3], 0, speedXInv, speedYInv, polygon,
         targetLine2 }
+    table.insert(targetLines, targetLine1)
+    table.insert(targetLines, targetLine2)
+    score += currentScore
     return true
 end
 
@@ -145,7 +165,7 @@ local laserCutAnimation = Sequence.new():from(1):to(0, 0.5, "inOutQuad"):callbac
             local splitSprite = spritesList[intersectingIndex[i]]
             if splitSpriteIntoTwo(splitSprite, splitLine) then
                 print("Called intersection")
-                score = score + 50
+                --score = score + 50
                 table.remove(spritesList, intersectingIndex[i])
             end
         end
@@ -193,6 +213,8 @@ function LaserMinigame:init(__sceneProperties)
     self.likesThisMethod = __sceneProperties.prefferedMethods
     self.hatesThisMethod = __sceneProperties.hatedMethods
     self.stopUpdate = false
+    print(self.likesThisMethod)
+    print(self.hatesThisMethod)
     if self.hatesThisMethod == true then
         print("I hate this laser method")
         PickIngredientScene.updateReputation(0)
@@ -250,6 +272,7 @@ function LaserMinigame:init(__sceneProperties)
         newPoint(64 + 0, 0))
     polygon:close()
     local targetLine = rotateLineSegmentAroundPoint(math.random() * 360, 64, 64)
+    table.insert(targetLines, targetLine)
     --               Image, x,   y,   r, vx,vy,cpolygon, target cut
     spritesList[1] = { img, 168, 88, 0, 0, 0, polygon, targetLine }
     mask = gfx.image.new("assets/images/default_mask")
@@ -391,12 +414,23 @@ function LaserMinigame:update()
     end
     gfx.popContext()
     if self.stopUpdate == true then
-        print("Score " .. score)
+        --print("Score " .. score)
         return
     end
     --splitLineStensil:draw(0,0)
-    if laserCuts == 0 then
-        
+    if laserCuts < 0 then
+        if self.hatesThisMethod == nil then
+            print("Called this if block with this score " .. score)
+            if score > 300 then
+                if self.likesThisMethod == true then
+                    PickIngredientScene.updateReputation(2)
+                else
+                    PickIngredientScene.updateReputation(1)
+                end
+            else
+                PickIngredientScene.updateReputation(0)
+            end
+        end
         Noble.Text.setFont(Noble.Text.FONT_MEDIUM)
         pd.timer.performAfterDelay(1000, function() Noble.transition(PlateScene, nil, Noble.Transition.DipToBlack, nil, {rep = PickIngredientScene.getReputation()}) end)
         self.stopUpdate = true
@@ -407,6 +441,7 @@ function LaserMinigame:exit()
     laserCuts = 3
     score = 0
     spritesList = {}
+    targetLines = {}
     --gfx.clear()
 end
 
